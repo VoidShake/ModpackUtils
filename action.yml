@@ -1,0 +1,20 @@
+name: "Modpack Utils"
+description: "Modpack Utils"
+inputs:
+  token:
+    description: "The github token"
+    required: true
+  action:
+    description: "The action to perform"
+    required: true
+outputs:
+  next:
+    description: "The incremented version"
+  type:
+    description: "The release type"
+runs:
+  using: "node12"
+  main: dist/index.js
+branding:
+  color: "purple"
+  icon: "arrow-up-circle"

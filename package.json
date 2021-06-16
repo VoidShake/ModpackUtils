@@ -1,0 +1,33 @@
+{
+  "name": "modpack-utils",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts",
+    "watch": "nodemon"
+  },
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "@actions/github": "^5.0.0",
+    "@octokit/webhooks": "^9.7.0",
+    "@types/dotenv": "^8.2.0",
+    "@types/glob": "^7.1.3",
+    "@types/node": "^12.19.4",
+    "@types/node-fetch": "^2.5.10",
+    "@types/rimraf": "^3.0.0",
+    "@vercel/ncc": "^0.28.6",
+    "axios": "^0.21.1",
+    "cpy": "^8.1.2",
+    "dotenv": "^8.2.0",
+    "dropbox": "^9.4.0",
+    "extract-zip": "^2.0.1",
+    "form-data": "^4.0.0",
+    "glob": "^7.1.6",
+    "pre-commit": "^1.2.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.2.4",
+    "yaml": "^1.10.2"
+  },
+  "pre-commit": [
+    "build"
+  ]
+}

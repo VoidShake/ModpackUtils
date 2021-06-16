@@ -1,0 +1,10 @@
+{
+   "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/nodemon.json",
+   "exec": "tsc",
+   "ext": "*",
+   "watch": [
+      "src/",
+      ".env",
+      "tsconfig.json"
+   ]
+}
