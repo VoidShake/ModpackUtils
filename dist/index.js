@@ -18023,6 +18023,8 @@ const api = axios_default().create({
     }
 });
 async function updateWeb(release) {
+    if (!pack)
+        throw new Error('No pack ID defined');
     const cfData = JSON.parse((0,external_fs_.readFileSync)('minecraftinstance.json').toString());
     const packData = (0,external_fs_.existsSync)((0,external_path_.join)(webDir, 'pack.yml')) && yaml_default().parse((0,external_fs_.readFileSync)((0,external_path_.join)(webDir, 'pack.yml')).toString());
     const tag = release.tag_name;
