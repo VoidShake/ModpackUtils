@@ -17,10 +17,11 @@ const api = axios.create({
 
 export default async function updateWeb(pack: string, release: RawRelease) {
 
+   const tag = release.tag_name
+   console.log(`Updating web data for pack '${pack}' version '${tag}'`)
+   
    const cfData = JSON.parse(readFileSync('minecraftinstance.json').toString())
    const packData = existsSync(join(webDir, 'pack.yml')) && yaml.parse(readFileSync(join(webDir, 'pack.yml')).toString())
-
-   const tag = release.tag_name
 
    await Promise.all([
       api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),

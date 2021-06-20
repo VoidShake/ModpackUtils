@@ -18023,9 +18023,10 @@ const api = axios_default().create({
     }
 });
 async function updateWeb(pack, release) {
+    const tag = release.tag_name;
+    console.log(`Updating web data for pack '${pack}' version '${tag}'`);
     const cfData = JSON.parse((0,external_fs_.readFileSync)('minecraftinstance.json').toString());
     const packData = (0,external_fs_.existsSync)((0,external_path_.join)(webDir, 'pack.yml')) && yaml_default().parse((0,external_fs_.readFileSync)((0,external_path_.join)(webDir, 'pack.yml')).toString());
-    const tag = release.tag_name;
     await Promise.all([
         api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
         updatePages(),
