@@ -18022,9 +18022,7 @@ const api = axios_default().create({
         'Content-Type': 'application/json'
     }
 });
-async function updateWeb(release) {
-    if (!pack)
-        throw new Error('No pack ID defined');
+async function updateWeb(pack, release) {
     const cfData = JSON.parse((0,external_fs_.readFileSync)('minecraftinstance.json').toString());
     const packData = (0,external_fs_.existsSync)((0,external_path_.join)(webDir, 'pack.yml')) && yaml_default().parse((0,external_fs_.readFileSync)((0,external_path_.join)(webDir, 'pack.yml')).toString());
     const tag = release.tag_name;
@@ -18076,6 +18074,7 @@ function updatePages() {
 
 
 (0,main/* config */.v)();
+const src_pack = core.getInput('pack');
 async function run() {
     const action = core.getInput('action');
     switch (action) {
@@ -18088,7 +18087,7 @@ async function web() {
     if (eventName !== 'release' || !github.context.payload.release) {
         throw new Error('web workflow can only be triggered at release creation');
     }
-    return updateWeb(github.context.payload.release);
+    return updateWeb(src_pack, github.context.payload.release);
 }
 run().catch(e => core.setFailed(e.message));
 

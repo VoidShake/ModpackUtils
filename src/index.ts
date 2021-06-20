@@ -5,6 +5,8 @@ import updateWeb from './web';
 
 config()
 
+const pack = core.getInput('pack')
+
 async function run() {
 
    const action = core.getInput('action')
@@ -24,7 +26,7 @@ async function web() {
       throw new Error('web workflow can only be triggered at release creation')
    }
 
-   return updateWeb(github.context.payload.release)
+   return updateWeb(pack, github.context.payload.release)
 }
 
 run().catch(e => core.setFailed(e.message));

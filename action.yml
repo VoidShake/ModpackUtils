@@ -7,11 +7,9 @@ inputs:
   action:
     description: "The action to perform"
     required: true
-outputs:
-  next:
-    description: "The incremented version"
-  type:
-    description: "The release type"
+  pack:
+    description: "The pack ID"
+    required: true
 runs:
   using: "node12"
   main: dist/index.js

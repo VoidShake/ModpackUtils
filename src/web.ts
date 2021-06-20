@@ -15,9 +15,7 @@ const api = axios.create({
    }
 })
 
-export default async function updateWeb(release: RawRelease) {
-
-   if(!pack) throw new Error('No pack ID defined')
+export default async function updateWeb(pack: string, release: RawRelease) {
 
    const cfData = JSON.parse(readFileSync('minecraftinstance.json').toString())
    const packData = existsSync(join(webDir, 'pack.yml')) && yaml.parse(readFileSync(join(webDir, 'pack.yml')).toString())
