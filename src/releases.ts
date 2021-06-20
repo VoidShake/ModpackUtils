@@ -1,5 +1,15 @@
 import { getOctokit } from '@actions/github'
 
+export interface RawRelease {
+   body:string,
+   html_url: string
+   id: number,
+   name: string,
+   prerelease: boolean,
+   published_at: string,
+   tag_name: string,
+}
+
 export interface Release {
    name: string
    url: string
@@ -19,7 +29,7 @@ export async function getReleases() {
    return response.data.map(strip) as Release[]
 }
 
-function strip(raw: Record<string, any>): Release {
+export function strip(raw: RawRelease): Release {
    const { html_url, tag_name, name, published_at, body } = raw
 
    return {

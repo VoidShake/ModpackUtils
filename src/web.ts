@@ -3,9 +3,9 @@ import FormData from 'form-data'
 import { createReadStream, existsSync, readdirSync, readFileSync } from 'fs'
 import { basename, extname, join } from 'path'
 import yaml from 'yaml'
-import { getRelease } from './releases'
+import { RawRelease, strip } from './releases'
 
-export default async function updateWeb(tag: string) {
+export default async function updateWeb(release: RawRelease) {
 
    const webDir = 'web'
    const cfData = JSON.parse(readFileSync('minecraftinstance.json').toString())
@@ -37,10 +37,10 @@ export default async function updateWeb(tag: string) {
       }
    })
 
-   const releaseData = tag && await getRelease(tag)
+   const tag = release.tag_name
 
    await Promise.all([
-      api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...releaseData }).then(() => console.log(`Updated pack`)),
+      api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
       ...parsed.map(async content => {
          await api.put('pack/page', { ...content, pack })
          console.log(`Uploaded ${content.title}`)
