@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { config } from "dotenv/types";
+import { config } from "dotenv";
 
 config()
 
