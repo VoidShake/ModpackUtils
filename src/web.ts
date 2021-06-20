@@ -5,27 +5,58 @@ import { basename, extname, join } from 'path'
 import yaml from 'yaml'
 import { RawRelease, strip } from './releases'
 
+const webDir = 'web'
+const pack = process.env.PACK_ID
+
+const api = axios.create({
+   baseURL: process.env.API_URL ?? 'https://packs.macarena.ceo/api',
+   headers: {
+      'Content-Type': 'application/json'
+   }
+})
+
 export default async function updateWeb(release: RawRelease) {
 
-   const webDir = 'web'
    const cfData = JSON.parse(readFileSync('minecraftinstance.json').toString())
    const packData = existsSync(join(webDir, 'pack.yml')) && yaml.parse(readFileSync(join(webDir, 'pack.yml')).toString())
 
-   const api = axios.create({
-      baseURL: process.env.API_URL ?? 'https://packs.macarena.ceo/api',
-      headers: {
-         'Content-Type': 'application/json'
-      }
-   })
+   const tag = release.tag_name
 
-   const pack = process.env.PACK_ID
+   await Promise.all([
+      api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
+      updatePages(),
+      updateAssets(),
+   ])
 
-   const pages = readdirSync(join(webDir, 'pages')).map(f => join(webDir, 'pages', f))
-   const assets = readdirSync(join(webDir, 'assets')).map(f => join(webDir, 'assets', f))
+}
+
+async function updateAssets() {
+   const assetsDir = join(webDir, 'assets')
+
+   if (!existsSync(assetsDir)) {
+      console.warn('No assets defined')
+      return
+   }
+
+   const assets = readdirSync(assetsDir).map(f => join(assetsDir, f))
    const assetsData = assets.reduce((data, img) => {
       data.append(basename(img), createReadStream(img))
       return data
    }, new FormData())
+
+   await api.put(`/pack/${pack}/assets`, assetsData, { headers: assetsData.getHeaders() })
+   console.log(`Updated assets`)
+}
+
+function updatePages() {
+   const pageDir = join(webDir, 'pages')
+
+   if (!existsSync(pageDir)) {
+      console.warn('No pages defined')
+      return
+   }
+
+   const pages = readdirSync(pageDir).map(f => join(pageDir, f))
 
    const parsed = pages.map(page => {
       const ext = extname(page)
@@ -37,15 +68,9 @@ export default async function updateWeb(release: RawRelease) {
       }
    })
 
-   const tag = release.tag_name
-
-   await Promise.all([
-      api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
-      ...parsed.map(async content => {
-         await api.put('pack/page', { ...content, pack })
-         console.log(`Uploaded ${content.title}`)
-      }),
-      api.put(`/pack/${pack}/assets`, assetsData, { headers: assetsData.getHeaders() }).then(() => console.log(`Updated assets`)),
-   ])
+   return Promise.all(parsed.map(async content => {
+      await api.put('pack/page', { ...content, pack })
+      console.log(`Uploaded ${content.title}`)
+   }))
 
 }
