@@ -82899,7 +82899,7 @@ async function extractResources() {
     if ((0,external_fs_.existsSync)('resources')) {
         await extract('resources', 'temp');
         (0,external_fs_.mkdirSync)('kubejs', { recursive: true });
-        await cpy_default()(['temp/assets', 'temp/data'], 'kubejs', { parents: true });
+        await cpy_default()(['assets', 'data'], '../kubejs', { parents: true, cwd: 'temp' });
     }
     else
         console.warn('Skipping resources');
