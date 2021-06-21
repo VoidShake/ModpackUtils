@@ -17904,12 +17904,9 @@ const api = axios_default().create({
     }
 });
 async function updateWeb(release) {
-    const tag = release.tag_name;
-    console.log(`Updating web data for pack for version '${tag}'`);
-    const cfData = JSON.parse((0,external_fs_.readFileSync)('minecraftinstance.json').toString());
-    const packData = (0,external_fs_.existsSync)((0,external_path_.join)(webDir, 'pack.yml')) && yaml_default().parse((0,external_fs_.readFileSync)((0,external_path_.join)(webDir, 'pack.yml')).toString());
     await Promise.all([
-        api.put(`/pack/release/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
+        updateData(),
+        createRelease(release),
         ...updatePages(),
         updateAssets(),
     ].map(p => p.catch(e => {
@@ -17920,6 +17917,25 @@ async function updateWeb(release) {
             throw e;
         }
     })));
+}
+async function updateData() {
+    const file = (0,external_path_.join)(webDir, 'pack.yml');
+    if (!(0,external_fs_.existsSync)(file)) {
+        console.warn('Skip updating pack data');
+        return;
+    }
+    const packData = yaml_default().parse((0,external_fs_.readFileSync)(file).toString());
+    await api.put(`/pack/release`, packData);
+    console.log('Updated pack data');
+}
+async function createRelease(release) {
+    const tag = release.tag_name;
+    const cfFile = 'minecraftinstance.json';
+    if (!cfFile)
+        throw new Error('minecraftinstance.json file missing');
+    const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
+    api.put(`/pack/release/${tag}`, { ...cfData, ...strip(release) });
+    console.log(`Created release for version '${tag}'`);
 }
 async function updateAssets() {
     const assetsDir = (0,external_path_.join)(webDir, 'assets');

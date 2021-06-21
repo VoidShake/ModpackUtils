@@ -23,14 +23,9 @@ const api = axios.create({
 
 export default async function updateWeb(release: RawRelease) {
 
-   const tag = release.tag_name
-   console.log(`Updating web data for pack for version '${tag}'`)
-
-   const cfData = JSON.parse(readFileSync('minecraftinstance.json').toString())
-   const packData = existsSync(join(webDir, 'pack.yml')) && yaml.parse(readFileSync(join(webDir, 'pack.yml')).toString())
-
    await Promise.all([
-      api.put(`/pack/release/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
+      updateData(),
+      createRelease(release),
       ...updatePages(),
       updateAssets(),
    ].map(p => p.catch(e => {
@@ -41,6 +36,31 @@ export default async function updateWeb(release: RawRelease) {
       }
    })))
 
+}
+
+async function updateData() {
+   const file = join(webDir, 'pack.yml')
+   if (!existsSync(file)) {
+      console.warn('Skip updating pack data')
+      return
+   }
+
+   const packData = yaml.parse(readFileSync(file).toString())
+
+   await api.put(`/pack/release`, packData)
+   console.log('Updated pack data')
+}
+
+async function createRelease(release: RawRelease) {
+   const tag = release.tag_name
+
+   const cfFile = 'minecraftinstance.json'
+   if (!cfFile) throw new Error('minecraftinstance.json file missing')
+
+   const cfData = JSON.parse(readFileSync(cfFile).toString())
+   api.put(`/pack/release/${tag}`, { ...cfData, ...strip(release) })
+
+   console.log(`Created release for version '${tag}'`)
 }
 
 async function updateAssets() {
