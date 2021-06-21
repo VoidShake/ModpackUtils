@@ -27,7 +27,7 @@ async function zipAndUpload(name: string) {
 
    archive.pipe(createWriteStream(file))
    paths.forEach(dir => archive.directory(dir, dir))
-   archive.finalize()
+   await archive.finalize()
 
    await uploadToDropbox(file)
 

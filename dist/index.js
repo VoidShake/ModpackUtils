@@ -82949,7 +82949,7 @@ async function zipAndUpload(name) {
     const file = name + '.zip';
     archive.pipe((0,external_fs_.createWriteStream)(file));
     paths.forEach(dir => archive.directory(dir, dir));
-    archive.finalize();
+    await archive.finalize();
     await uploadToDropbox(file);
     if (github.context.eventName === 'release') {
         await uploadToRelease(file, github.context.payload.release);
