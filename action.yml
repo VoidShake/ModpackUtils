@@ -1,9 +1,6 @@
 name: "Modpack Utils"
 description: "Modpack Utils"
 inputs:
-  token:
-    description: "The github token"
-    required: true
   action:
     description: "The action to perform"
     required: true
@@ -11,12 +8,19 @@ inputs:
     description: "The remote url of the web api"
     required: false
     default: "https://packs.macarena.ceo/api"
-  dropbox_token:
-    description: "The dropbox access token"
-    required: false
   web_token:
     description: "The web api token"
     required: false
+  github_token:
+    description: "The github tokn"
+    required: false
+  dropbox_token:
+    description: "The dropbox access token"
+    required: false
+  dropbox_path:
+    description: "The dropbox path"
+    required: false
+    default: ""
 runs:
   using: "node12"
   main: dist/index.js

@@ -1,15 +1,17 @@
 import * as core from '@actions/core';
 import { Dropbox } from 'dropbox';
 import { readFile } from 'fs';
-import { basename } from 'path';
+import { basename, join } from 'path';
 
 export default async function uploadToDropbox(input: string) {
 
    const accessToken = core.getInput('dropbox_token')
    if (!accessToken) {
-      console.warn('Not uploading to dropbox')
+      console.warn('Dropbox token missing, not uploading to dropbox')
       return
    }
+
+   const path = join('/', core.getInput('dropbox_path'), basename(input))
 
    const dropbox = new Dropbox({ accessToken })
 
@@ -19,7 +21,7 @@ export default async function uploadToDropbox(input: string) {
          if (error) throw error
 
          const response = await dropbox.filesUpload({
-            path: `/${basename(input)}`, contents, mode: {
+            path, contents, mode: {
                '.tag': 'overwrite'
             }
          })

@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, unlinkSync } from "fs";
 import { join, resolve } from "path";
 
-export default function server() {
+export default function removeClientContent() {
 
    const file = resolve(__dirname, '..', 'client-only.json')
    const remove: string[] = JSON.parse(readFileSync(file).toString())

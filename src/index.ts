@@ -1,18 +1,21 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { AxiosError } from 'axios';
+import technicRelease from './technic';
 import { createRelease, updateWeb } from './web';
 
 function isAxiosError(e: any): e is AxiosError {
    return !!e.isAxiosError
 }
 
+
 async function run() {
 
-   const action = core.getInput('action')
+   const action = core.getInput('action', { required: true })
 
    switch (action) {
       case 'web': return web()
+      case 'technic': return technicRelease()
    }
 
    throw new Error(`Invalid action '${action}'`)
@@ -20,14 +23,13 @@ async function run() {
 }
 
 async function web() {
-   const { eventName } = github.context
 
-   if (eventName === 'release' && github.context.payload.release) {
+   if (github.context.eventName === 'release') {
       await createRelease(github.context.payload.release)
    }
 
    await updateWeb()
-   
+
 }
 
 run().catch(e => {

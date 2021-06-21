@@ -3,10 +3,21 @@ import glob from 'glob'
 import { dirname, join } from 'path'
 import extrator from './extractor'
 
-export default function replaceContent() {
+function capitalize(s: string) {
+   return s.substring(0, 1).toUpperCase() + s.substring(1)
+}
 
-   const file = join(__dirname, '..', 'replaced.json')
+export default async function replaceContent() {
+
+   const file = 'replaced.json'
+
+   if (!existsSync(file)) {
+      console.warn('Skipping resource replacer')
+      return
+   }
+
    const replaced: Array<[string, string]> = Object.entries(JSON.parse(readFileSync(file).toString()))
+   const sources = replaced.reduce<string[]>((a, b) => [...a, ...b], [])
 
    const dataRegex = replaced.map(([from, to]) => {
       const [modFrom, idFrom] = from.split(':')
@@ -27,36 +38,27 @@ export default function replaceContent() {
    })
 
    const isSource = (f: string) => {
-      const sources = ['iceandfire', 'create', 'caverns_and_chasms', 'biomesoplenty', 'environmental', 'abundance', 'autumnity', 'quark', 'cofh_core', 'atmospheric']
       return sources.some(s => f.toLowerCase().includes(s))
    }
 
-   async function run() {
+   const temp = 'temp'
+   const out = join('resources', 'replaced')
 
-      const temp = 'temp'
-      const out = join('resources', 'replaced')
+   await extrator('mods', temp, isSource)
 
-      await extrator('mods', temp, isSource)
+   replaceOccurences(temp, out, [
+      'data/*/recipes/**/*.json',
+      'data/*/loot_tables/**/*.json',
+   ])
 
-      replaceOccurences(temp, out, [
-         'data/*/recipes/**/*.json',
-         'data/*/loot_tables/**/*.json',
-      ])
+   mimic(temp, out, [
+      'assets/*/blockstates/**/*.json',
+      'assets/*/models/item/**/*.json',
+   ])
 
-      mimic(temp, out, [
-         'assets/*/blockstates/**/*.json',
-         'assets/*/models/item/**/*.json',
-      ])
-
-      replaceTranslations(temp, out, [
-         'block', 'item'
-      ])
-
-   }
-
-   function capitalize(s: string) {
-      return s.substring(0, 1).toUpperCase() + s.substring(1)
-   }
+   replaceTranslations(temp, out, [
+      'block', 'item'
+   ])
 
    function replaceTranslations(dir: string, out: string, types: string[]) {
 
