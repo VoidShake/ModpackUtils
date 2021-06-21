@@ -82966,8 +82966,8 @@ async function uploadToRelease(file, release) {
     await octokit.rest.repos.uploadReleaseAsset({
         release_id: release.id,
         owner, repo,
-        data: (0,external_fs_.readFileSync)(file).toString(),
         name: `technic-${file}`,
+        data: (0,external_fs_.readFileSync)(file),
         headers: {
             'Content-Type': 'application/zip'
         }
