@@ -82916,13 +82916,15 @@ function extractResources() {
 
 
 function removeClientContent() {
-    const file = (0,external_path_.resolve)(__dirname, '..', 'client-only.json');
-    const remove = JSON.parse((0,external_fs_.readFileSync)(file).toString());
-    const matches = (0,external_fs_.readdirSync)('mods').filter(file => remove.some(s => file.includes(s)));
-    matches.forEach(f => {
-        (0,external_fs_.unlinkSync)((0,external_path_.join)('mods', f));
-    });
-    console.log('Removed', matches.length, 'files using', remove.length, 'patterns');
+    const file = 'client-only.json';
+    if ((0,external_fs_.existsSync)(file)) {
+        const remove = JSON.parse((0,external_fs_.readFileSync)(file).toString());
+        const matches = (0,external_fs_.readdirSync)('mods').filter(file => remove.some(s => file.includes(s)));
+        matches.forEach(f => {
+            (0,external_fs_.unlinkSync)((0,external_path_.join)('mods', f));
+        });
+        console.log('Removed', matches.length, 'files using', remove.length, 'patterns');
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/technic.ts
