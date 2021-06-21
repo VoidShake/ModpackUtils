@@ -17913,9 +17913,11 @@ async function updateWeb(release) {
         ...updatePages(),
         updateAssets(),
     ].map(p => p.catch(e => {
+        var _a;
         if (isAxiosError(e)) {
             console.error(`API Request failed: ${e.config.url}`);
-            console.error(`   ${e.code}: ${e.message}`);
+            console.error(`   ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
+            throw e;
         }
     })));
 }

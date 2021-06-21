@@ -36,7 +36,8 @@ export default async function updateWeb(release: RawRelease) {
    ].map(p => p.catch(e => {
       if (isAxiosError(e)) {
          console.error(`API Request failed: ${e.config.url}`)
-         console.error(`   ${e.code}: ${e.message}`)
+         console.error(`   ${e.response?.data}`)
+         throw e
       }
    })))
 
