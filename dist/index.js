@@ -17893,6 +17893,9 @@ async function getRelease(tag) {
 
 const webDir = 'web';
 const token = core.getInput('web_token');
+function isAxiosError(e) {
+    return !!e.isAxiosError;
+}
 const api = axios_default().create({
     baseURL: core.getInput('api'),
     headers: {
@@ -17907,9 +17910,14 @@ async function updateWeb(release) {
     const packData = (0,external_fs_.existsSync)((0,external_path_.join)(webDir, 'pack.yml')) && yaml_default().parse((0,external_fs_.readFileSync)((0,external_path_.join)(webDir, 'pack.yml')).toString());
     await Promise.all([
         api.put(`/pack/release/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
-        updatePages(),
+        ...updatePages(),
         updateAssets(),
-    ]);
+    ].map(p => p.catch(e => {
+        if (isAxiosError(e)) {
+            console.error(`API Request failed: ${e.config.url}`);
+            console.error(`   with token ${token}`);
+        }
+    })));
 }
 async function updateAssets() {
     const assetsDir = (0,external_path_.join)(webDir, 'assets');
@@ -17929,7 +17937,7 @@ function updatePages() {
     const pageDir = (0,external_path_.join)(webDir, 'pages');
     if (!(0,external_fs_.existsSync)(pageDir)) {
         console.warn('No pages defined');
-        return;
+        return [];
     }
     const pages = (0,external_fs_.readdirSync)(pageDir).map(f => (0,external_path_.join)(pageDir, f));
     const parsed = pages.map(page => {
@@ -17941,10 +17949,10 @@ function updatePages() {
             default: return {};
         }
     });
-    return Promise.all(parsed.map(async (content) => {
+    return parsed.map(async (content) => {
         await api.put('pack/page', content);
         console.log(`Uploaded ${content.title}`);
-    }));
+    });
 }
 
 ;// CONCATENATED MODULE: ./src/index.ts

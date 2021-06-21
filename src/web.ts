@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import FormData from 'form-data'
 import { createReadStream, existsSync, readdirSync, readFileSync } from 'fs'
 import { basename, extname, join } from 'path'
@@ -8,6 +8,10 @@ import { RawRelease, strip } from './releases'
 
 const webDir = 'web'
 const token = core.getInput('web_token')
+
+function isAxiosError(e: any): e is AxiosError {
+   return !!e.isAxiosError
+}
 
 const api = axios.create({
    baseURL: core.getInput('api'),
@@ -27,9 +31,14 @@ export default async function updateWeb(release: RawRelease) {
 
    await Promise.all([
       api.put(`/pack/release/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
-      updatePages(),
+      ...updatePages(),
       updateAssets(),
-   ])
+   ].map(p => p.catch(e => {
+      if (isAxiosError(e)) {
+         console.error(`API Request failed: ${e.config.url}`)
+         console.error(`   with token ${token}`)
+      }
+   })))
 
 }
 
@@ -56,7 +65,7 @@ function updatePages() {
 
    if (!existsSync(pageDir)) {
       console.warn('No pages defined')
-      return
+      return []
    }
 
    const pages = readdirSync(pageDir).map(f => join(pageDir, f))
@@ -71,9 +80,9 @@ function updatePages() {
       }
    })
 
-   return Promise.all(parsed.map(async content => {
+   return parsed.map(async content => {
       await api.put('pack/page', content)
       console.log(`Uploaded ${content.title}`)
-   }))
+   })
 
 }
