@@ -36,7 +36,7 @@ async function updateData() {
 
    const packData = yaml.parse(readFileSync(file).toString())
 
-   await api.put(`/pack/release`, packData)
+   await api.put(`/pack`, packData)
    console.log('Updated pack data')
 }
 

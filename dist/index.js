@@ -17914,7 +17914,7 @@ async function updateData() {
         return;
     }
     const packData = yaml_default().parse((0,external_fs_.readFileSync)(file).toString());
-    await api.put(`/pack/release`, packData);
+    await api.put(`/pack`, packData);
     console.log('Updated pack data');
 }
 async function createRelease(release) {
