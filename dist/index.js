@@ -82898,7 +82898,8 @@ async function replaceContent() {
 async function extractResources() {
     if ((0,external_fs_.existsSync)('resources')) {
         await extract('resources', 'temp');
-        await cpy_default()('temp/*', 'kubejs');
+        (0,external_fs_.mkdirSync)('kubejs', { recursive: true });
+        await cpy_default()(['temp/assets', 'temp/data'], 'kubejs');
     }
     else
         console.warn('Skipping resources');
