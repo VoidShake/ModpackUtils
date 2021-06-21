@@ -1,6 +1,11 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import updateWeb from './web';
+import { AxiosError } from 'axios';
+import { createRelease, updateWeb } from './web';
+
+function isAxiosError(e: any): e is AxiosError {
+   return !!e.isAxiosError
+}
 
 async function run() {
 
@@ -17,11 +22,22 @@ async function run() {
 async function web() {
    const { eventName } = github.context
 
-   if (eventName !== 'release' || !github.context.payload.release) {
-      throw new Error('web workflow can only be triggered at release creation')
+   if (eventName === 'release' && github.context.payload.release) {
+      await createRelease(github.context.payload.release)
    }
 
-   return updateWeb(github.context.payload.release)
+   await updateWeb()
+   
 }
 
-run().catch(e => core.setFailed(e.message));
+run().catch(e => {
+
+   if (isAxiosError(e)) {
+      console.error(`API Request failed: ${e.config.url}`)
+      console.error(`   ${e.response?.data}`)
+      throw e
+   }
+
+   core.setFailed(e.message)
+
+})

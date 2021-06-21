@@ -17893,9 +17893,6 @@ async function getRelease(tag) {
 
 const webDir = 'web';
 const token = core.getInput('web_token');
-function isAxiosError(e) {
-    return !!e.isAxiosError;
-}
 const api = axios_default().create({
     baseURL: core.getInput('api'),
     headers: {
@@ -17903,20 +17900,12 @@ const api = axios_default().create({
         'Authorization': `Bearer ${token}`,
     }
 });
-async function updateWeb(release) {
+async function updateWeb() {
     await Promise.all([
-        updateData(),
-        createRelease(release),
         ...updatePages(),
+        updateData(),
         updateAssets(),
-    ].map(p => p.catch(e => {
-        var _a;
-        if (isAxiosError(e)) {
-            console.error(`API Request failed: ${e.config.url}`);
-            console.error(`   ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
-            throw e;
-        }
-    })));
+    ]);
 }
 async function updateData() {
     const file = (0,external_path_.join)(webDir, 'pack.yml');
@@ -17977,6 +17966,9 @@ function updatePages() {
 
 
 
+function isAxiosError(e) {
+    return !!e.isAxiosError;
+}
 async function run() {
     const action = core.getInput('action');
     switch (action) {
@@ -17986,12 +17978,20 @@ async function run() {
 }
 async function web() {
     const { eventName } = github.context;
-    if (eventName !== 'release' || !github.context.payload.release) {
-        throw new Error('web workflow can only be triggered at release creation');
+    if (eventName === 'release' && github.context.payload.release) {
+        await createRelease(github.context.payload.release);
     }
-    return updateWeb(github.context.payload.release);
+    await updateWeb();
 }
-run().catch(e => core.setFailed(e.message));
+run().catch(e => {
+    var _a;
+    if (isAxiosError(e)) {
+        console.error(`API Request failed: ${e.config.url}`);
+        console.error(`   ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
+        throw e;
+    }
+    core.setFailed(e.message);
+});
 
 })();
 

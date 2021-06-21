@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import FormData from 'form-data'
 import { createReadStream, existsSync, readdirSync, readFileSync } from 'fs'
 import { basename, extname, join } from 'path'
@@ -9,10 +9,6 @@ import { RawRelease, strip } from './releases'
 const webDir = 'web'
 const token = core.getInput('web_token')
 
-function isAxiosError(e: any): e is AxiosError {
-   return !!e.isAxiosError
-}
-
 const api = axios.create({
    baseURL: core.getInput('api'),
    headers: {
@@ -21,20 +17,13 @@ const api = axios.create({
    }
 })
 
-export default async function updateWeb(release: RawRelease) {
+export async function updateWeb() {
 
    await Promise.all([
-      updateData(),
-      createRelease(release),
       ...updatePages(),
+      updateData(),
       updateAssets(),
-   ].map(p => p.catch(e => {
-      if (isAxiosError(e)) {
-         console.error(`API Request failed: ${e.config.url}`)
-         console.error(`   ${e.response?.data}`)
-         throw e
-      }
-   })))
+   ])
 
 }
 
@@ -51,7 +40,7 @@ async function updateData() {
    console.log('Updated pack data')
 }
 
-async function createRelease(release: RawRelease) {
+export async function createRelease(release: RawRelease) {
    const tag = release.tag_name
 
    const cfFile = 'minecraftinstance.json'
