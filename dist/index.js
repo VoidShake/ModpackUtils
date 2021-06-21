@@ -83051,7 +83051,8 @@ async function createRelease(release) {
     if (!cfFile)
         throw new Error('minecraftinstance.json file missing');
     const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
-    api.put(`/pack/release/${tag}`, { ...cfData, ...strip(release) });
+    const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)('mods', addon.installedFile.fileName)));
+    api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) });
     console.log(`Created release for version '${tag}'`);
 }
 async function updateAssets() {

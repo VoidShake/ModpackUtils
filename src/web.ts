@@ -40,14 +40,27 @@ async function updateData() {
    console.log('Updated pack data')
 }
 
+interface MinecraftInstance {
+   installedAddons: Array<{
+      installedFile: {
+         fileName: string
+      }
+   }>
+}
+
 export async function createRelease(release: RawRelease) {
    const tag = release.tag_name
 
    const cfFile = 'minecraftinstance.json'
    if (!cfFile) throw new Error('minecraftinstance.json file missing')
 
-   const cfData = JSON.parse(readFileSync(cfFile).toString())
-   api.put(`/pack/release/${tag}`, { ...cfData, ...strip(release) })
+   const cfData = JSON.parse(readFileSync(cfFile).toString()) as MinecraftInstance
+
+   const installedAddons = cfData.installedAddons.filter(addon =>
+      existsSync(join('mods', addon.installedFile.fileName))
+   )
+
+   api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) })
 
    console.log(`Created release for version '${tag}'`)
 }
