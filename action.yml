@@ -7,9 +7,16 @@ inputs:
   action:
     description: "The action to perform"
     required: true
-  pack:
-    description: "The pack ID"
-    required: true
+  api:
+    description: "The remote url of the web api"
+    required: false
+    default: "https://packs.macarena.ceo/api"
+  dropbox_token:
+    description: "The dropbox access token"
+    required: false
+  web_token:
+    description: "The web api token"
+    required: false
 runs:
   using: "node12"
   main: dist/index.js

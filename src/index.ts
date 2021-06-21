@@ -1,11 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { config } from "dotenv";
 import updateWeb from './web';
-
-config()
-
-const pack = core.getInput('pack')
 
 async function run() {
 
@@ -26,7 +21,7 @@ async function web() {
       throw new Error('web workflow can only be triggered at release creation')
    }
 
-   return updateWeb(pack, github.context.payload.release)
+   return updateWeb(github.context.payload.release)
 }
 
 run().catch(e => core.setFailed(e.message));

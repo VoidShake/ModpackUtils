@@ -1,3 +1,4 @@
+import * as core from '@actions/core'
 import axios from 'axios'
 import FormData from 'form-data'
 import { createReadStream, existsSync, readdirSync, readFileSync } from 'fs'
@@ -6,25 +7,26 @@ import yaml from 'yaml'
 import { RawRelease, strip } from './releases'
 
 const webDir = 'web'
-const pack = process.env.PACK_ID
+const token = core.getInput('web_token')
 
 const api = axios.create({
-   baseURL: process.env.API_URL ?? 'https://packs.macarena.ceo/api',
+   baseURL: core.getInput('api'),
    headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
    }
 })
 
-export default async function updateWeb(pack: string, release: RawRelease) {
+export default async function updateWeb(release: RawRelease) {
 
    const tag = release.tag_name
-   console.log(`Updating web data for pack '${pack}' version '${tag}'`)
-   
+   console.log(`Updating web data for pack for version '${tag}'`)
+
    const cfData = JSON.parse(readFileSync('minecraftinstance.json').toString())
    const packData = existsSync(join(webDir, 'pack.yml')) && yaml.parse(readFileSync(join(webDir, 'pack.yml')).toString())
 
    await Promise.all([
-      api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
+      api.put(`/pack/release/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
       updatePages(),
       updateAssets(),
    ])
@@ -45,7 +47,7 @@ async function updateAssets() {
       return data
    }, new FormData())
 
-   await api.put(`/pack/${pack}/assets`, assetsData, { headers: assetsData.getHeaders() })
+   await api.put(`/pack/assets`, assetsData, { headers: assetsData.getHeaders() })
    console.log(`Updated assets`)
 }
 
@@ -70,7 +72,7 @@ function updatePages() {
    })
 
    return Promise.all(parsed.map(async content => {
-      await api.put('pack/page', { ...content, pack })
+      await api.put('pack/page', content)
       console.log(`Uploaded ${content.title}`)
    }))
 
