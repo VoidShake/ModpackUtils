@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { Dropbox } from 'dropbox';
-import { readFile } from 'fs';
+import { readFileSync } from 'fs';
 import { basename, join } from 'path';
 
 export default async function uploadToDropbox(input: string) {
@@ -15,22 +15,11 @@ export default async function uploadToDropbox(input: string) {
 
    const dropbox = new Dropbox({ accessToken })
 
-   readFile(input, async (error, contents) => {
-      try {
+   const contents = readFileSync(input)
 
-         if (error) throw error
-
-         const response = await dropbox.filesUpload({
-            path, contents, mode: {
-               '.tag': 'overwrite'
-            }
-         })
-         console.log(response)
-         process.exit(0)
-
-      } catch (e) {
-         console.error(e)
-         process.exit(-1)
+   await dropbox.filesUpload({
+      path, contents, mode: {
+         '.tag': 'overwrite'
       }
    })
 

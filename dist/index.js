@@ -82719,21 +82719,10 @@ async function uploadToDropbox(input) {
     }
     const path = (0,external_path_.join)('/', core.getInput('dropbox_path'), (0,external_path_.basename)(input));
     const dropbox = new cjs/* Dropbox */.d8({ accessToken });
-    (0,external_fs_.readFile)(input, async (error, contents) => {
-        try {
-            if (error)
-                throw error;
-            const response = await dropbox.filesUpload({
-                path, contents, mode: {
-                    '.tag': 'overwrite'
-                }
-            });
-            console.log(response);
-            process.exit(0);
-        }
-        catch (e) {
-            console.error(e);
-            process.exit(-1);
+    const contents = (0,external_fs_.readFileSync)(input);
+    await dropbox.filesUpload({
+        path, contents, mode: {
+            '.tag': 'overwrite'
         }
     });
 }
