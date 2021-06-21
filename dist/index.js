@@ -82788,7 +82788,7 @@ async function replaceContent() {
         return;
     }
     const replaced = Object.entries(JSON.parse((0,external_fs_.readFileSync)(file).toString()));
-    const sources = replaced.reduce((a, b) => [...a, ...b], []);
+    const sources = replaced.map(a => a.map(it => it.split(':')[0])).reduce((a, b) => [...a, ...b], []);
     const dataRegex = replaced.map(([from, to]) => {
         const [modFrom, idFrom] = from.split(':');
         const [modTo, idTo] = to.split(':');

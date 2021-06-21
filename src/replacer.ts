@@ -17,7 +17,7 @@ export default async function replaceContent() {
    }
 
    const replaced: Array<[string, string]> = Object.entries(JSON.parse(readFileSync(file).toString()))
-   const sources = replaced.reduce<string[]>((a, b) => [...a, ...b], [])
+   const sources = replaced.map(a => a.map(it => it.split(':')[0])).reduce<string[]>((a, b) => [...a, ...b], [])
 
    const dataRegex = replaced.map(([from, to]) => {
       const [modFrom, idFrom] = from.split(':')
