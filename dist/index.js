@@ -82894,9 +82894,12 @@ async function replaceContent() {
 ;// CONCATENATED MODULE: ./src/resources.ts
 
 
-function extractResources() {
-    if ((0,external_fs_.existsSync)('resources'))
-        return extract('resources', 'temp');
+
+async function extractResources() {
+    if ((0,external_fs_.existsSync)('resources')) {
+        await extract('resources', 'temp');
+        await cpy_default()('temp/*', 'kubejs');
+    }
     else
         console.warn('Skipping resources');
 }
@@ -82904,8 +82907,10 @@ function extractResources() {
 ;// CONCATENATED MODULE: ./src/server.ts
 
 
+
 function removeClientContent() {
     const file = 'client-only.json';
+    rimraf_default().sync('kubejs/assets');
     if ((0,external_fs_.existsSync)(file)) {
         const remove = JSON.parse((0,external_fs_.readFileSync)(file).toString());
         const matches = (0,external_fs_.readdirSync)('mods').filter(file => remove.some(s => file.includes(s)));
