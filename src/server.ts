@@ -1,9 +1,9 @@
 import { readdirSync, readFileSync, unlinkSync } from "fs";
-import { join, resolve } from "path";
+import { join } from "path";
 
 export default function removeClientContent() {
 
-   const file = resolve(__dirname, '..', 'client-only.json')
+   const file = 'client-only.json'
    const remove: string[] = JSON.parse(readFileSync(file).toString())
 
    const matches = readdirSync('mods').filter(file => remove.some(s => file.includes(s)))
