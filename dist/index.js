@@ -7485,127 +7485,6 @@ exports.Deprecation = Deprecation;
 
 /***/ }),
 
-/***/ 2437:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var __webpack_unused_export__;
-/* @flow */
-/*::
-
-type DotenvParseOptions = {
-  debug?: boolean
-}
-
-// keys and values from src
-type DotenvParseOutput = { [string]: string }
-
-type DotenvConfigOptions = {
-  path?: string, // path to .env file
-  encoding?: string, // encoding of .env file
-  debug?: string // turn on logging for debugging purposes
-}
-
-type DotenvConfigOutput = {
-  parsed?: DotenvParseOutput,
-  error?: Error
-}
-
-*/
-
-const fs = __nccwpck_require__(5747)
-const path = __nccwpck_require__(5622)
-
-function log (message /*: string */) {
-  console.log(`[dotenv][DEBUG] ${message}`)
-}
-
-const NEWLINE = '\n'
-const RE_INI_KEY_VAL = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/
-const RE_NEWLINES = /\\n/g
-const NEWLINES_MATCH = /\n|\r|\r\n/
-
-// Parses src into an Object
-function parse (src /*: string | Buffer */, options /*: ?DotenvParseOptions */) /*: DotenvParseOutput */ {
-  const debug = Boolean(options && options.debug)
-  const obj = {}
-
-  // convert Buffers before splitting into lines and processing
-  src.toString().split(NEWLINES_MATCH).forEach(function (line, idx) {
-    // matching "KEY' and 'VAL' in 'KEY=VAL'
-    const keyValueArr = line.match(RE_INI_KEY_VAL)
-    // matched?
-    if (keyValueArr != null) {
-      const key = keyValueArr[1]
-      // default undefined or missing values to empty string
-      let val = (keyValueArr[2] || '')
-      const end = val.length - 1
-      const isDoubleQuoted = val[0] === '"' && val[end] === '"'
-      const isSingleQuoted = val[0] === "'" && val[end] === "'"
-
-      // if single or double quoted, remove quotes
-      if (isSingleQuoted || isDoubleQuoted) {
-        val = val.substring(1, end)
-
-        // if double quoted, expand newlines
-        if (isDoubleQuoted) {
-          val = val.replace(RE_NEWLINES, NEWLINE)
-        }
-      } else {
-        // remove surrounding whitespace
-        val = val.trim()
-      }
-
-      obj[key] = val
-    } else if (debug) {
-      log(`did not match key and value when parsing line ${idx + 1}: ${line}`)
-    }
-  })
-
-  return obj
-}
-
-// Populates process.env from .env file
-function config (options /*: ?DotenvConfigOptions */) /*: DotenvConfigOutput */ {
-  let dotenvPath = path.resolve(process.cwd(), '.env')
-  let encoding /*: string */ = 'utf8'
-  let debug = false
-
-  if (options) {
-    if (options.path != null) {
-      dotenvPath = options.path
-    }
-    if (options.encoding != null) {
-      encoding = options.encoding
-    }
-    if (options.debug != null) {
-      debug = true
-    }
-  }
-
-  try {
-    // specifying an encoding returns a string instead of a buffer
-    const parsed = parse(fs.readFileSync(dotenvPath, { encoding }), { debug })
-
-    Object.keys(parsed).forEach(function (key) {
-      if (!Object.prototype.hasOwnProperty.call(process.env, key)) {
-        process.env[key] = parsed[key]
-      } else if (debug) {
-        log(`"${key}" is already defined in \`process.env\` and will not be overwritten`)
-      }
-    })
-
-    return { parsed }
-  } catch (e) {
-    return { error: e }
-  }
-}
-
-module.exports.v = config
-__webpack_unused_export__ = parse
-
-
-/***/ }),
-
 /***/ 1133:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -17963,8 +17842,6 @@ __nccwpck_require__.r(__webpack_exports__);
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
-// EXTERNAL MODULE: ./node_modules/dotenv/lib/main.js
-var main = __nccwpck_require__(2437);
 // EXTERNAL MODULE: ./node_modules/axios/index.js
 var axios = __nccwpck_require__(6545);
 var axios_default = /*#__PURE__*/__nccwpck_require__.n(axios);
@@ -18007,7 +17884,7 @@ async function getRelease(tag) {
 }
 
 ;// CONCATENATED MODULE: ./src/web.ts
-var _a;
+
 
 
 
@@ -18015,20 +17892,21 @@ var _a;
 
 
 const webDir = 'web';
-const pack = process.env.PACK_ID;
+const token = core.getInput('web_token');
 const api = axios_default().create({
-    baseURL: (_a = process.env.API_URL) !== null && _a !== void 0 ? _a : 'https://packs.macarena.ceo/api',
+    baseURL: core.getInput('api'),
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
     }
 });
-async function updateWeb(pack, release) {
+async function updateWeb(release) {
     const tag = release.tag_name;
-    console.log(`Updating web data for pack '${pack}' version '${tag}'`);
+    console.log(`Updating web data for pack for version '${tag}'`);
     const cfData = JSON.parse((0,external_fs_.readFileSync)('minecraftinstance.json').toString());
     const packData = (0,external_fs_.existsSync)((0,external_path_.join)(webDir, 'pack.yml')) && yaml_default().parse((0,external_fs_.readFileSync)((0,external_path_.join)(webDir, 'pack.yml')).toString());
     await Promise.all([
-        api.put(`/pack/${pack}/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
+        api.put(`/pack/release/${tag}`, { ...cfData, ...packData, ...strip(release) }).then(() => console.log(`Updated pack`)),
         updatePages(),
         updateAssets(),
     ]);
@@ -18044,7 +17922,7 @@ async function updateAssets() {
         data.append((0,external_path_.basename)(img), (0,external_fs_.createReadStream)(img));
         return data;
     }, new (form_data_default())());
-    await api.put(`/pack/${pack}/assets`, assetsData, { headers: assetsData.getHeaders() });
+    await api.put(`/pack/assets`, assetsData, { headers: assetsData.getHeaders() });
     console.log(`Updated assets`);
 }
 function updatePages() {
@@ -18064,7 +17942,7 @@ function updatePages() {
         }
     });
     return Promise.all(parsed.map(async (content) => {
-        await api.put('pack/page', { ...content, pack });
+        await api.put('pack/page', content);
         console.log(`Uploaded ${content.title}`);
     }));
 }
@@ -18073,9 +17951,6 @@ function updatePages() {
 
 
 
-
-(0,main/* config */.v)();
-const src_pack = core.getInput('pack');
 async function run() {
     const action = core.getInput('action');
     switch (action) {
@@ -18088,7 +17963,7 @@ async function web() {
     if (eventName !== 'release' || !github.context.payload.release) {
         throw new Error('web workflow can only be triggered at release creation');
     }
-    return updateWeb(src_pack, github.context.payload.release);
+    return updateWeb(github.context.payload.release);
 }
 run().catch(e => core.setFailed(e.message));
 
