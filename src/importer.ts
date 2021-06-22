@@ -1,6 +1,6 @@
-import { context } from '@actions/github'
-import { execSync } from 'child_process'
-import { existsSync, mkdirSync } from 'fs'
+import { endGroup, getInput, info, startGroup } from '@actions/core'
+import { context, getOctokit } from '@actions/github'
+import { mkdirSync } from 'fs'
 import { resolve } from 'path'
 import { getReleases } from './releases'
 import { createRelease } from './web'
@@ -10,25 +10,27 @@ export async function backtrackReleases() {
 
    const releases = await getReleases()
 
-   console.group('Importing releases')
+   startGroup('Importing releases')
+
+   const github = getOctokit(getInput('github_token', { required: true }))
 
    mkdirSync('temp', { recursive: true })
    await Promise.all(releases.map(async release => {
 
       const dir = resolve('temp', release.tag_name)
 
-      if (!existsSync(dir)) {
-         execSync(`git clone https://github.com/${owner}/${repo}.git "${dir}"`)
-      }
+      const url = await github.rest.repos.downloadZipballArchive({
+         owner, repo, ref: release.tag_name,
+      })
 
-      execSync(`git checkout ${release.tag_name}`, { cwd: dir })
+      console.log(url)
 
-      await createRelease(release, dir)
+      if (false) await createRelease(release, dir)
 
-      console.log('Uploaded', release.tag_name)
+      info(`Uploaded ${release.tag_name}`)
 
    }))
 
-   console.groupEnd()
+   endGroup
 
 }
