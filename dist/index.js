@@ -83787,7 +83787,7 @@ async function updateData() {
 async function createRelease(release, dir = '') {
     const tag = release.tag_name;
     const cfFile = (0,external_path_.join)(dir, 'minecraftinstance.json');
-    if (!cfFile)
+    if (!(0,external_fs_.existsSync)(cfFile))
         throw new Error('minecraftinstance.json file missing');
     const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
     const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)(dir, 'mods', addon.installedFile.fileName)));
@@ -83847,22 +83847,28 @@ async function backtrackReleases() {
     const github = (0,lib_github.getOctokit)((0,core.getInput)('github_token', { required: true }));
     (0,external_fs_.mkdirSync)('temp', { recursive: true });
     await Promise.all(releases.map(async (release) => {
-        const dir = (0,external_path_.resolve)('temp', release.tag_name);
-        const zip = dir + '.zip';
-        const { url } = await github.rest.repos.downloadZipballArchive({
-            owner, repo, ref: release.tag_name,
-        });
-        const { data } = await axios_default().get(url, { responseType: 'stream' });
-        const writer = (0,external_fs_.createWriteStream)(zip);
-        data.pipe(writer);
-        await new Promise((res, rej) => {
-            writer.on('finish', res);
-            writer.on('error', rej);
-        });
-        await extract_zip_default()(zip, { dir });
-        const [gitDir] = (0,external_fs_.readdirSync)(dir);
-        await createRelease(release, (0,external_path_.join)(dir, gitDir));
-        (0,core.info)(`Uploaded ${release.tag_name}`);
+        try {
+            const dir = (0,external_path_.resolve)('temp', release.tag_name);
+            const zip = dir + '.zip';
+            const { url } = await github.rest.repos.downloadZipballArchive({
+                owner, repo, ref: release.tag_name,
+            });
+            const { data } = await axios_default().get(url, { responseType: 'stream' });
+            const writer = (0,external_fs_.createWriteStream)(zip);
+            data.pipe(writer);
+            await new Promise((res, rej) => {
+                writer.on('finish', res);
+                writer.on('error', rej);
+            });
+            await extract_zip_default()(zip, { dir });
+            const [gitDir] = (0,external_fs_.readdirSync)(dir);
+            await createRelease(release, (0,external_path_.join)(dir, gitDir));
+            (0,core.info)(`Uploaded ${release.tag_name}`);
+        }
+        catch (e) {
+            (0,core.error)(`An error occured importing version ${release.tag_name}`);
+            (0,core.error)(e.message);
+        }
     }));
     core.endGroup;
 }

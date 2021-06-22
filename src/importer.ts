@@ -1,4 +1,4 @@
-import { endGroup, getInput, info, startGroup } from '@actions/core'
+import { endGroup, error, getInput, info, startGroup } from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import axios from 'axios'
 import unzip from 'extract-zip'
@@ -18,31 +18,38 @@ export async function backtrackReleases() {
 
    mkdirSync('temp', { recursive: true })
    await Promise.all(releases.map(async release => {
+      try {
 
-      const dir = resolve('temp', release.tag_name)
-      const zip = dir + '.zip'
+         const dir = resolve('temp', release.tag_name)
+         const zip = dir + '.zip'
 
-      const { url } = await github.rest.repos.downloadZipballArchive({
-         owner, repo, ref: release.tag_name,
-      })
+         const { url } = await github.rest.repos.downloadZipballArchive({
+            owner, repo, ref: release.tag_name,
+         })
 
-      const { data } = await axios.get(url, { responseType: 'stream' })
-      const writer = createWriteStream(zip)
-      data.pipe(writer)
+         const { data } = await axios.get(url, { responseType: 'stream' })
+         const writer = createWriteStream(zip)
+         data.pipe(writer)
 
-      await new Promise((res, rej) => {
-         writer.on('finish', res)
-         writer.on('error', rej)
-      })
+         await new Promise((res, rej) => {
+            writer.on('finish', res)
+            writer.on('error', rej)
+         })
 
-      await unzip(zip, { dir })
+         await unzip(zip, { dir })
 
-      const [gitDir] = readdirSync(dir)
+         const [gitDir] = readdirSync(dir)
 
-      await createRelease(release, join(dir, gitDir))
+         await createRelease(release, join(dir, gitDir))
 
-      info(`Uploaded ${release.tag_name}`)
+         info(`Uploaded ${release.tag_name}`)
 
+      } catch (e) {
+
+         error(`An error occured importing version ${release.tag_name}`)
+         error(e.message)
+
+      }
    }))
 
    endGroup

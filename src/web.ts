@@ -59,7 +59,7 @@ export async function createRelease(release: RawRelease, dir = '') {
    const tag = release.tag_name
 
    const cfFile = join(dir, 'minecraftinstance.json')
-   if (!cfFile) throw new Error('minecraftinstance.json file missing')
+   if (!existsSync(cfFile)) throw new Error('minecraftinstance.json file missing')
 
    const cfData = JSON.parse(readFileSync(cfFile).toString()) as MinecraftInstance
 
@@ -70,7 +70,7 @@ export async function createRelease(release: RawRelease, dir = '') {
    const { data } = await api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) })
 
    info(`Created release for version '${tag}'`)
-   
+
    return data
 }
 
