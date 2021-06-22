@@ -1,4 +1,4 @@
-import * as core from '@actions/core'
+import { endGroup, getInput, info, startGroup, warning } from '@actions/core'
 import axios from 'axios'
 import FormData from 'form-data'
 import { createReadStream, existsSync, readdirSync, readFileSync } from 'fs'
@@ -7,10 +7,10 @@ import yaml from 'yaml'
 import { RawRelease, strip } from './releases'
 
 const webDir = 'web'
-const token = core.getInput('web_token')
+const token = getInput('web_token', { required: true })
 
 const api = axios.create({
-   baseURL: core.getInput('api'),
+   baseURL: getInput('api'),
    headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
@@ -19,30 +19,37 @@ const api = axios.create({
 
 export async function updateWeb() {
 
+   startGroup('Updating web')
+
    await Promise.all([
       ...updatePages(),
       updateData(),
       updateAssets(),
    ])
 
+   endGroup()
+
 }
 
 async function updateData() {
    const file = join(webDir, 'pack.yml')
    if (!existsSync(file)) {
-      console.warn('Skip updating pack data')
+      warning('Skip updating pack data')
       return
    }
 
    const packData = yaml.parse(readFileSync(file).toString())
 
    await api.put(`/pack`, packData)
-   console.log('Updated pack data')
+   info('Updated pack data')
 }
 
-interface MinecraftInstance {
+export interface MinecraftInstance {
    installedAddons: Array<{
+      addonID: number
       installedFile: {
+         categorySectionPackageType: number
+         id: number
          fileName: string
       }
    }>
@@ -62,14 +69,14 @@ export async function createRelease(release: RawRelease, dir = '') {
 
    api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) })
 
-   console.log(`Created release for version '${tag}'`)
+   info(`Created release for version '${tag}'`)
 }
 
 async function updateAssets() {
    const assetsDir = join(webDir, 'assets')
 
    if (!existsSync(assetsDir)) {
-      console.warn('No assets defined')
+      warning('No assets defined')
       return
    }
 
@@ -80,14 +87,14 @@ async function updateAssets() {
    }, new FormData())
 
    await api.put(`/pack/assets`, assetsData, { headers: assetsData.getHeaders() })
-   console.log(`Updated assets`)
+   info(`Updated assets`)
 }
 
 function updatePages() {
    const pageDir = join(webDir, 'pages')
 
    if (!existsSync(pageDir)) {
-      console.warn('No pages defined')
+      warning('No pages defined')
       return []
    }
 
@@ -105,7 +112,7 @@ function updatePages() {
 
    return parsed.map(async content => {
       await api.put('pack/page', content)
-      console.log(`Uploaded ${content.title}`)
+      info(`Uploaded ${content.title}`)
    })
 
 }

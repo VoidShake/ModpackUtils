@@ -1,18 +1,20 @@
+import { info } from "@actions/core"
 import { readFileSync, writeFileSync } from "fs"
+import { MinecraftInstance } from "./web"
 
 export default function createManifest(version: string) {
 
-   const instance = JSON.parse(readFileSync('minecraftinstance.json').toString())
+   const instance = JSON.parse(readFileSync('minecraftinstance.json').toString()) as MinecraftInstance
 
    const files = instance.installedAddons
-      .filter((a: any) => a.installedFile.categorySectionPackageType !== 3)
-      .map((a: any) => ({
+      .filter(a => a.installedFile.categorySectionPackageType !== 3)
+      .map(a => ({
          projectID: a.addonID,
          fileID: a.installedFile.id,
          required: true,
       }))
 
-   console.log(`Found ${files.length} installed mods`)
+   info(`Found ${files.length} installed mods`)
 
    const manifest = {
       minecraft: {

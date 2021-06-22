@@ -2382,142 +2382,6 @@ function readdirSync (dir, options, internalOptions) {
 
 /***/ }),
 
-/***/ 2987:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const fs = __nccwpck_require__(5747);
-exports.FILE_SYSTEM_ADAPTER = {
-    lstat: fs.lstat,
-    stat: fs.stat,
-    lstatSync: fs.lstatSync,
-    statSync: fs.statSync
-};
-function getFileSystemAdapter(fsMethods) {
-    if (!fsMethods) {
-        return exports.FILE_SYSTEM_ADAPTER;
-    }
-    return Object.assign({}, exports.FILE_SYSTEM_ADAPTER, fsMethods);
-}
-exports.getFileSystemAdapter = getFileSystemAdapter;
-
-
-/***/ }),
-
-/***/ 109:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const optionsManager = __nccwpck_require__(8018);
-const statProvider = __nccwpck_require__(709);
-/**
- * Asynchronous API.
- */
-function stat(path, opts) {
-    return new Promise((resolve, reject) => {
-        statProvider.async(path, optionsManager.prepare(opts), (err, stats) => err ? reject(err) : resolve(stats));
-    });
-}
-exports.stat = stat;
-function statCallback(path, optsOrCallback, callback) {
-    if (typeof optsOrCallback === 'function') {
-        callback = optsOrCallback; /* tslint:disable-line: no-parameter-reassignment */
-        optsOrCallback = undefined; /* tslint:disable-line: no-parameter-reassignment */
-    }
-    if (typeof callback === 'undefined') {
-        throw new TypeError('The "callback" argument must be of type Function.');
-    }
-    statProvider.async(path, optionsManager.prepare(optsOrCallback), callback);
-}
-exports.statCallback = statCallback;
-/**
- * Synchronous API.
- */
-function statSync(path, opts) {
-    return statProvider.sync(path, optionsManager.prepare(opts));
-}
-exports.statSync = statSync;
-
-
-/***/ }),
-
-/***/ 8018:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const fsAdapter = __nccwpck_require__(2987);
-function prepare(opts) {
-    const options = Object.assign({
-        fs: fsAdapter.getFileSystemAdapter(opts ? opts.fs : undefined),
-        throwErrorOnBrokenSymlinks: true,
-        followSymlinks: true
-    }, opts);
-    return options;
-}
-exports.prepare = prepare;
-
-
-/***/ }),
-
-/***/ 709:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-function sync(path, options) {
-    const lstat = options.fs.lstatSync(path);
-    if (!isFollowedSymlink(lstat, options)) {
-        return lstat;
-    }
-    try {
-        const stat = options.fs.statSync(path);
-        stat.isSymbolicLink = () => true;
-        return stat;
-    }
-    catch (err) {
-        if (!options.throwErrorOnBrokenSymlinks) {
-            return lstat;
-        }
-        throw err;
-    }
-}
-exports.sync = sync;
-function async(path, options, callback) {
-    options.fs.lstat(path, (err0, lstat) => {
-        if (err0) {
-            return callback(err0, undefined);
-        }
-        if (!isFollowedSymlink(lstat, options)) {
-            return callback(null, lstat);
-        }
-        options.fs.stat(path, (err1, stat) => {
-            if (err1) {
-                return options.throwErrorOnBrokenSymlinks ? callback(err1) : callback(null, lstat);
-            }
-            stat.isSymbolicLink = () => true;
-            callback(null, stat);
-        });
-    });
-}
-exports.async = async;
-/**
- * Returns `true` for followed symlink.
- */
-function isFollowedSymlink(stat, options) {
-    return stat.isSymbolicLink() && options.followSymlinks;
-}
-exports.isFollowedSymlink = isFollowedSymlink;
-
-
-/***/ }),
-
 /***/ 334:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -32621,6 +32485,142 @@ module.exports.generateTasks = pkg.generateTasks;
 
 /***/ }),
 
+/***/ 3889:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const fs = __nccwpck_require__(5747);
+exports.FILE_SYSTEM_ADAPTER = {
+    lstat: fs.lstat,
+    stat: fs.stat,
+    lstatSync: fs.lstatSync,
+    statSync: fs.statSync
+};
+function getFileSystemAdapter(fsMethods) {
+    if (!fsMethods) {
+        return exports.FILE_SYSTEM_ADAPTER;
+    }
+    return Object.assign({}, exports.FILE_SYSTEM_ADAPTER, fsMethods);
+}
+exports.getFileSystemAdapter = getFileSystemAdapter;
+
+
+/***/ }),
+
+/***/ 5605:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const optionsManager = __nccwpck_require__(3679);
+const statProvider = __nccwpck_require__(3269);
+/**
+ * Asynchronous API.
+ */
+function stat(path, opts) {
+    return new Promise((resolve, reject) => {
+        statProvider.async(path, optionsManager.prepare(opts), (err, stats) => err ? reject(err) : resolve(stats));
+    });
+}
+exports.stat = stat;
+function statCallback(path, optsOrCallback, callback) {
+    if (typeof optsOrCallback === 'function') {
+        callback = optsOrCallback; /* tslint:disable-line: no-parameter-reassignment */
+        optsOrCallback = undefined; /* tslint:disable-line: no-parameter-reassignment */
+    }
+    if (typeof callback === 'undefined') {
+        throw new TypeError('The "callback" argument must be of type Function.');
+    }
+    statProvider.async(path, optionsManager.prepare(optsOrCallback), callback);
+}
+exports.statCallback = statCallback;
+/**
+ * Synchronous API.
+ */
+function statSync(path, opts) {
+    return statProvider.sync(path, optionsManager.prepare(opts));
+}
+exports.statSync = statSync;
+
+
+/***/ }),
+
+/***/ 3679:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const fsAdapter = __nccwpck_require__(3889);
+function prepare(opts) {
+    const options = Object.assign({
+        fs: fsAdapter.getFileSystemAdapter(opts ? opts.fs : undefined),
+        throwErrorOnBrokenSymlinks: true,
+        followSymlinks: true
+    }, opts);
+    return options;
+}
+exports.prepare = prepare;
+
+
+/***/ }),
+
+/***/ 3269:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+function sync(path, options) {
+    const lstat = options.fs.lstatSync(path);
+    if (!isFollowedSymlink(lstat, options)) {
+        return lstat;
+    }
+    try {
+        const stat = options.fs.statSync(path);
+        stat.isSymbolicLink = () => true;
+        return stat;
+    }
+    catch (err) {
+        if (!options.throwErrorOnBrokenSymlinks) {
+            return lstat;
+        }
+        throw err;
+    }
+}
+exports.sync = sync;
+function async(path, options, callback) {
+    options.fs.lstat(path, (err0, lstat) => {
+        if (err0) {
+            return callback(err0, undefined);
+        }
+        if (!isFollowedSymlink(lstat, options)) {
+            return callback(null, lstat);
+        }
+        options.fs.stat(path, (err1, stat) => {
+            if (err1) {
+                return options.throwErrorOnBrokenSymlinks ? callback(err1) : callback(null, lstat);
+            }
+            stat.isSymbolicLink = () => true;
+            callback(null, stat);
+        });
+    });
+}
+exports.async = async;
+/**
+ * Returns `true` for followed symlink.
+ */
+function isFollowedSymlink(stat, options) {
+    return stat.isSymbolicLink() && options.followSymlinks;
+}
+exports.isFollowedSymlink = isFollowedSymlink;
+
+
+/***/ }),
+
 /***/ 4460:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -32705,7 +32705,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 var stream = __nccwpck_require__(2413);
-var fsStat = __nccwpck_require__(109);
+var fsStat = __nccwpck_require__(5605);
 var fs_1 = __nccwpck_require__(6746);
 var FileSystemStream = /** @class */ (function (_super) {
     __extends(FileSystemStream, _super);
@@ -32776,7 +32776,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-var fsStat = __nccwpck_require__(109);
+var fsStat = __nccwpck_require__(5605);
 var fs_1 = __nccwpck_require__(6746);
 var FileSystemSync = /** @class */ (function (_super) {
     __extends(FileSystemSync, _super);
@@ -83757,30 +83757,32 @@ var yaml_default = /*#__PURE__*/__nccwpck_require__.n(yaml);
 
 
 const webDir = 'web';
-const token = core.getInput('web_token');
+const token = (0,core.getInput)('web_token', { required: true });
 const api = axios_default().create({
-    baseURL: core.getInput('api'),
+    baseURL: (0,core.getInput)('api'),
     headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
     }
 });
 async function updateWeb() {
+    (0,core.startGroup)('Updating web');
     await Promise.all([
         ...updatePages(),
         updateData(),
         updateAssets(),
     ]);
+    (0,core.endGroup)();
 }
 async function updateData() {
     const file = (0,external_path_.join)(webDir, 'pack.yml');
     if (!(0,external_fs_.existsSync)(file)) {
-        console.warn('Skip updating pack data');
+        (0,core.warning)('Skip updating pack data');
         return;
     }
     const packData = yaml_default().parse((0,external_fs_.readFileSync)(file).toString());
     await api.put(`/pack`, packData);
-    console.log('Updated pack data');
+    (0,core.info)('Updated pack data');
 }
 async function createRelease(release, dir = '') {
     const tag = release.tag_name;
@@ -83790,12 +83792,12 @@ async function createRelease(release, dir = '') {
     const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
     const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)(dir, 'mods', addon.installedFile.fileName)));
     api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) });
-    console.log(`Created release for version '${tag}'`);
+    (0,core.info)(`Created release for version '${tag}'`);
 }
 async function updateAssets() {
     const assetsDir = (0,external_path_.join)(webDir, 'assets');
     if (!(0,external_fs_.existsSync)(assetsDir)) {
-        console.warn('No assets defined');
+        (0,core.warning)('No assets defined');
         return;
     }
     const assets = (0,external_fs_.readdirSync)(assetsDir).map(f => (0,external_path_.join)(assetsDir, f));
@@ -83804,12 +83806,12 @@ async function updateAssets() {
         return data;
     }, new (form_data_default())());
     await api.put(`/pack/assets`, assetsData, { headers: assetsData.getHeaders() });
-    console.log(`Updated assets`);
+    (0,core.info)(`Updated assets`);
 }
 function updatePages() {
     const pageDir = (0,external_path_.join)(webDir, 'pages');
     if (!(0,external_fs_.existsSync)(pageDir)) {
-        console.warn('No pages defined');
+        (0,core.warning)('No pages defined');
         return [];
     }
     const pages = (0,external_fs_.readdirSync)(pageDir).map(f => (0,external_path_.join)(pageDir, f));
@@ -83824,7 +83826,7 @@ function updatePages() {
     });
     return parsed.map(async (content) => {
         await api.put('pack/page', content);
-        console.log(`Uploaded ${content.title}`);
+        (0,core.info)(`Uploaded ${content.title}`);
     });
 }
 
@@ -83857,8 +83859,8 @@ async function backtrackReleases() {
             writer.on('error', rej);
         });
         await extract_zip_default()(zip, { dir });
-        (0,core.debug)((0,external_fs_.readdirSync)('temp').join(', '));
-        (0,core.debug)((0,external_fs_.readdirSync)(dir).join(', '));
+        (0,core.info)((0,external_fs_.readdirSync)('temp').join(', '));
+        (0,core.info)((0,external_fs_.readdirSync)(dir).join(', '));
         if (false)
             {}
         (0,core.info)(`Uploaded ${release.tag_name}`);
@@ -83877,12 +83879,12 @@ var cjs = __nccwpck_require__(8939);
 
 
 async function uploadToDropbox(input) {
-    const accessToken = core.getInput('dropbox_token');
+    const accessToken = (0,core.getInput)('dropbox_token');
     if (!accessToken) {
-        console.warn('Dropbox token missing, not uploading to dropbox');
+        (0,core.warning)('Dropbox token missing, not uploading to dropbox');
         return;
     }
-    const path = (0,external_path_.join)('/', core.getInput('dropbox_path'), (0,external_path_.basename)(input));
+    const path = (0,external_path_.join)('/', (0,core.getInput)('dropbox_path'), (0,external_path_.basename)(input));
     const dropbox = new cjs/* Dropbox */.d8({ accessToken });
     const contents = (0,external_fs_.readFileSync)(input);
     await dropbox.filesUpload({
@@ -83907,7 +83909,9 @@ var rimraf_default = /*#__PURE__*/__nccwpck_require__.n(rimraf);
 
 
 
+
 async function extract(from, to, predicate) {
+    (0,core.startGroup)(`Extracting ${from} -> ${to}`);
     const out = (0,external_path_.resolve)(to);
     const packs = (0,external_fs_.readdirSync)(from)
         .filter(p => !predicate || predicate(p))
@@ -83927,15 +83931,17 @@ async function extract(from, to, predicate) {
             if ((0,external_fs_.existsSync)((0,external_path_.join)(pack, dir)))
                 return cpy_default()(dir, out, { parents: true, cwd: pack });
         }));
-        console.log(`Copied ${(0,external_path_.basename)(pack)}`);
+        (0,core.info)(`Copied ${(0,external_path_.basename)(pack)}`);
     }
     for (const pack of zips) {
         await extract_zip_default()(pack, { dir: out });
-        console.log(`Unzipped ${(0,external_path_.basename)(pack)}`);
+        (0,core.info)(`Unzipped ${(0,external_path_.basename)(pack)}`);
     }
+    (0,core.endGroup)();
 }
 
 ;// CONCATENATED MODULE: ./src/replacer.ts
+
 
 
 
@@ -83944,9 +83950,10 @@ function capitalize(s) {
     return s.substring(0, 1).toUpperCase() + s.substring(1);
 }
 async function replaceContent() {
+    (0,core.startGroup)('Replacing content');
     const file = 'replaced.json';
     if (!(0,external_fs_.existsSync)(file)) {
-        console.warn('Skipping resource replacer');
+        (0,core.warning)('Skipping resource replacer');
         return;
     }
     const replaced = Object.entries(JSON.parse((0,external_fs_.readFileSync)(file).toString()));
@@ -84017,12 +84024,12 @@ async function replaceContent() {
             (0,external_fs_.mkdirSync)(outDir, { recursive: true });
             (0,external_fs_.writeFileSync)((0,external_path_.join)(outDir, 'en_us.json'), JSON.stringify(translationsOut, null, 2));
         });
-        console.log('Updated translations');
+        (0,core.info)('Updated translations');
     }
     function replaceOccurences(dir, out, replaceable) {
         const matches = replaceable.reduce((a, s) => [...a, ...glob_default().sync(s, { cwd: dir })], []);
         matches.forEach(s => replace((0,external_path_.join)(dir, s), (0,external_path_.join)(out, s)));
-        console.log('Replaced occurencies');
+        (0,core.info)('Replaced occurencies');
     }
     function mimic(dir, out, replaceable) {
         const matches = replaceable.reduce((a, s) => [...a, ...glob_default().sync(s, { cwd: dir })], []);
@@ -84036,12 +84043,12 @@ async function replaceContent() {
                     (0,external_fs_.copyFileSync)(match, outFile);
                 }
                 else {
-                    console.warn('Using assets replacing for', match);
+                    (0,core.warning)(`Using assets replacing for ${match}`);
                     replace((0,external_path_.join)(dir, file), outFile);
                 }
             });
         });
-        console.log('Mimiced assets');
+        (0,core.info)('Mimiced assets');
     }
     function replace(file, to) {
         const content = (0,external_fs_.readFileSync)(file).toString();
@@ -84051,9 +84058,11 @@ async function replaceContent() {
             (0,external_fs_.writeFileSync)(to, replacedContent);
         }
     }
+    (0,core.endGroup)();
 }
 
 ;// CONCATENATED MODULE: ./src/resources.ts
+
 
 
 
@@ -84065,10 +84074,11 @@ async function extractResources() {
         await cpy_default()(['assets', 'data'], (0,external_path_.resolve)('kubejs'), { parents: true, cwd: 'temp' });
     }
     else
-        console.warn('Skipping resources');
+        (0,core.warning)('Skipping resources');
 }
 
 ;// CONCATENATED MODULE: ./src/server.ts
+
 
 
 
@@ -84081,7 +84091,7 @@ function removeClientContent() {
         matches.forEach(f => {
             (0,external_fs_.unlinkSync)((0,external_path_.join)('mods', f));
         });
-        console.log('Removed', matches.length, 'files using', remove.length, 'patterns');
+        (0,core.info)(`Removed ${matches.length} files using ${remove.length} atterns`);
     }
 }
 
@@ -84095,11 +84105,13 @@ function removeClientContent() {
 
 
 async function technicRelease() {
+    (0,core.startGroup)('Creating zip releases for TechnicPack');
     await replaceContent();
     await extractResources();
     await zipAndUpload('client');
     removeClientContent();
     await zipAndUpload('server');
+    (0,core.endGroup)();
 }
 async function zipAndUpload(name) {
     const paths = ['config', 'mods', 'kubejs', 'defaultconfigs', 'bin'];
@@ -84114,12 +84126,12 @@ async function zipAndUpload(name) {
     }
 }
 async function uploadToRelease(file, release) {
-    const token = core.getInput('github_token');
+    const token = (0,core.getInput)('github_token');
     if (!token) {
-        console.warn('Github token missing, not uploading to release');
+        (0,core.warning)('Github token missing, not uploading to release');
         return;
     }
-    const octokit = lib_github.getOctokit(token);
+    const octokit = (0,lib_github.getOctokit)(token);
     const { owner, repo } = lib_github.context.repo;
     await octokit.rest.repos.uploadReleaseAsset({
         release_id: release.id,

@@ -1,3 +1,4 @@
+import { endGroup, info, startGroup, warning } from '@actions/core'
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import glob from 'glob'
 import { dirname, join } from 'path'
@@ -9,10 +10,12 @@ function capitalize(s: string) {
 
 export default async function replaceContent() {
 
+   startGroup('Replacing content')
+
    const file = 'replaced.json'
 
    if (!existsSync(file)) {
-      console.warn('Skipping resource replacer')
+      warning('Skipping resource replacer')
       return
    }
 
@@ -105,7 +108,7 @@ export default async function replaceContent() {
 
       })
 
-      console.log('Updated translations')
+      info('Updated translations')
 
    }
 
@@ -121,7 +124,7 @@ export default async function replaceContent() {
          join(out, s)
       ))
 
-      console.log('Replaced occurencies')
+      info('Replaced occurencies')
 
    }
 
@@ -145,7 +148,7 @@ export default async function replaceContent() {
                mkdirSync(dirname(outFile), { recursive: true })
                copyFileSync(match, outFile)
             } else {
-               console.warn('Using assets replacing for', match)
+               warning(`Using assets replacing for ${match}`)
                replace(join(dir, file), outFile)
             }
 
@@ -153,7 +156,7 @@ export default async function replaceContent() {
 
       })
 
-      console.log('Mimiced assets')
+      info('Mimiced assets')
 
    }
 
@@ -171,5 +174,7 @@ export default async function replaceContent() {
       }
 
    }
+
+   endGroup()
 
 }

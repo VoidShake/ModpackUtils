@@ -1,3 +1,4 @@
+import { warning } from '@actions/core'
 import cpy from 'cpy'
 import { existsSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
@@ -9,5 +10,5 @@ export default async function extractResources() {
       mkdirSync('kubejs', { recursive: true })
       await cpy(['assets', 'data'], resolve('kubejs'), { parents: true, cwd: 'temp' })
    }
-   else console.warn('Skipping resources')
+   else warning('Skipping resources')
 }

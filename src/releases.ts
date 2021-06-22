@@ -19,8 +19,6 @@ export interface Release {
    changelog: string
 }
 
-
-
 export async function getReleases() {
    const { repo, owner } = context.repo
    const octokit = getOctokit(getInput('github_token', { required: true }))

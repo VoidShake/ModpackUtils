@@ -1,5 +1,5 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
+import { endGroup, getInput, startGroup, warning } from '@actions/core';
+import { context, getOctokit } from '@actions/github';
 import archiver from 'archiver';
 import { createWriteStream, readFileSync } from 'fs';
 import uploadToDropbox from './dropbox';
@@ -10,6 +10,8 @@ import removeClientContent from './server';
 
 export default async function technicRelease() {
 
+   startGroup('Creating zip releases for TechnicPack')
+
    await replaceContent()
    await extractResources()
 
@@ -17,6 +19,8 @@ export default async function technicRelease() {
 
    removeClientContent()
    await zipAndUpload('server')
+
+   endGroup()
 
 }
 
@@ -31,22 +35,22 @@ async function zipAndUpload(name: string) {
 
    await uploadToDropbox(file)
 
-   if (github.context.eventName === 'release') {
-      await uploadToRelease(file, github.context.payload.release)
+   if (context.eventName === 'release') {
+      await uploadToRelease(file, context.payload.release)
    }
 }
 
 async function uploadToRelease(file: string, release: RawRelease) {
 
-   const token = core.getInput('github_token')
+   const token = getInput('github_token')
    if (!token) {
-      console.warn('Github token missing, not uploading to release')
+      warning('Github token missing, not uploading to release')
       return
    }
 
-   const octokit = github.getOctokit(token)
+   const octokit = getOctokit(token)
 
-   const { owner, repo } = github.context.repo
+   const { owner, repo } = context.repo
 
    await octokit.rest.repos.uploadReleaseAsset({
       release_id: release.id,

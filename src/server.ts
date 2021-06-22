@@ -1,3 +1,4 @@
+import { info } from "@actions/core";
 import { existsSync, readdirSync, readFileSync, unlinkSync } from "fs";
 import { join } from "path";
 import rimraf from "rimraf";
@@ -18,7 +19,7 @@ export default function removeClientContent() {
          unlinkSync(join('mods', f))
       })
 
-      console.log('Removed', matches.length, 'files using', remove.length, 'patterns')
+      info(`Removed ${matches.length} files using ${remove.length} atterns`)
 
    }
 }

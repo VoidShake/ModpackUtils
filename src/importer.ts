@@ -1,4 +1,4 @@
-import { debug, endGroup, getInput, info, startGroup } from '@actions/core'
+import { endGroup, getInput, info, startGroup } from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import axios from 'axios'
 import unzip from 'extract-zip'
@@ -37,8 +37,8 @@ export async function backtrackReleases() {
 
       await unzip(zip, { dir })
 
-      debug(readdirSync('temp').join(', '))
-      debug(readdirSync(dir).join(', '))
+      info(readdirSync('temp').join(', '))
+      info(readdirSync(dir).join(', '))
 
       if (false) await createRelease(release, dir)
 

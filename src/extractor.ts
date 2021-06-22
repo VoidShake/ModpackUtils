@@ -1,3 +1,4 @@
+import { endGroup, info, startGroup } from '@actions/core'
 import cpy from 'cpy'
 import unzip from 'extract-zip'
 import { existsSync, mkdirSync, readdirSync, statSync } from "fs"
@@ -5,6 +6,8 @@ import { basename, extname, join, resolve } from 'path'
 import rimraf from 'rimraf'
 
 export default async function extract(from: string, to: string, predicate?: (s: string) => boolean) {
+
+   startGroup(`Extracting ${from} -> ${to}`)
 
    const out = resolve(to)
    const packs = readdirSync(from)
@@ -28,15 +31,17 @@ export default async function extract(from: string, to: string, predicate?: (s: 
          if (existsSync(join(pack, dir))) return cpy(dir, out, { parents: true, cwd: pack })
       }))
 
-      console.log(`Copied ${basename(pack)}`)
+      info(`Copied ${basename(pack)}`)
 
    }
 
    for (const pack of zips) {
 
       await unzip(pack, { dir: out })
-      console.log(`Unzipped ${basename(pack)}`)
+      info(`Unzipped ${basename(pack)}`)
 
    }
+
+   endGroup()
 
 }
