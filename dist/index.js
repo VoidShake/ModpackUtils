@@ -83859,7 +83859,7 @@ async function backtrackReleases() {
             writer.on('error', rej);
         });
         await extract_zip_default()(zip, { dir });
-        const gitDir = (0,external_fs_.readdirSync)('dir')[0];
+        const [gitDir] = (0,external_fs_.readdirSync)(dir);
         console.log((0,external_fs_.readdirSync)((0,external_path_.join)(dir, gitDir)).join(', '));
         if (false)
             {}
