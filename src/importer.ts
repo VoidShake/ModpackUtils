@@ -3,7 +3,7 @@ import { context, getOctokit } from '@actions/github'
 import axios from 'axios'
 import unzip from 'extract-zip'
 import { createWriteStream, mkdirSync, readdirSync } from 'fs'
-import { resolve } from 'path'
+import { join, resolve } from 'path'
 import { getReleases } from './releases'
 import { createRelease } from './web'
 
@@ -37,10 +37,10 @@ export async function backtrackReleases() {
 
       await unzip(zip, { dir })
 
-      info(readdirSync('temp').join(', '))
-      info(readdirSync(dir).join(', '))
+      const gitDir = readdirSync('dir')[0]
+      console.log(readdirSync(join(dir, gitDir)).join(', '))
 
-      if (false) await createRelease(release, dir)
+      if (false) await createRelease(release, join(dir, gitDir))
 
       info(`Uploaded ${release.tag_name}`)
 
