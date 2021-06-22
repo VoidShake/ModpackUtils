@@ -82705,10 +82705,10 @@ var external_fs_ = __nccwpck_require__(5747);
 var external_path_ = __nccwpck_require__(5622);
 ;// CONCATENATED MODULE: ./src/releases.ts
 
+
 async function getReleases() {
-    var _a;
     const { repo, owner } = github.context.repo;
-    const octokit = (0,github.getOctokit)((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
+    const octokit = (0,github.getOctokit)((0,core.getInput)('github_token', { required: true }));
     const response = await octokit.request(`/repos/${owner}/${repo}/releases`);
     return response.data;
 }

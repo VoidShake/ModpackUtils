@@ -1,3 +1,4 @@
+import { getInput } from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 
 export interface RawRelease {
@@ -22,7 +23,7 @@ export interface Release {
 
 export async function getReleases() {
    const { repo, owner } = context.repo
-   const octokit = getOctokit(process.env.GITHUB_TOKEN ?? '')
+   const octokit = getOctokit(getInput('github_token', { required: true }))
    const response = await octokit.request(`/repos/${owner}/${repo}/releases`)
    return response.data as RawRelease[]
 }
