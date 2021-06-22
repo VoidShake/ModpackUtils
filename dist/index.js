@@ -82981,14 +82981,12 @@ var yaml = __nccwpck_require__(3552);
 var yaml_default = /*#__PURE__*/__nccwpck_require__.n(yaml);
 ;// CONCATENATED MODULE: ./src/releases.ts
 
-//const { repo, actor } = context
-const repo = 'SteampunkAndDragons';
-const actor = 'Frozenpacks';
 async function getReleases() {
     var _a;
-    const github = getOctokit((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
-    const response = await github.request(`/repos/${actor}/${repo}/releases`);
-    return response.data.map(strip);
+    const { repo, owner } = context.repo;
+    const octokit = getOctokit((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
+    const response = await octokit.request(`/repos/${owner}/${repo}/releases`);
+    return response.data;
 }
 function strip(raw) {
     const { html_url, tag_name, name, published_at, body } = raw;
@@ -82999,12 +82997,6 @@ function strip(raw) {
         date: published_at,
         changelog: body
     };
-}
-async function getRelease(tag) {
-    var _a;
-    const github = getOctokit((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
-    const response = await github.request(`/repos/${actor}/${repo}/releases/tags/${tag}`);
-    return strip(response.data);
 }
 
 ;// CONCATENATED MODULE: ./src/web.ts
@@ -83041,13 +83033,13 @@ async function updateData() {
     await api.put(`/pack`, packData);
     console.log('Updated pack data');
 }
-async function createRelease(release) {
+async function createRelease(release, dir = '') {
     const tag = release.tag_name;
-    const cfFile = 'minecraftinstance.json';
+    const cfFile = (0,external_path_.join)(dir, 'minecraftinstance.json');
     if (!cfFile)
         throw new Error('minecraftinstance.json file missing');
     const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
-    const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)('mods', addon.installedFile.fileName)));
+    const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)(dir, 'mods', addon.installedFile.fileName)));
     api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) });
     console.log(`Created release for version '${tag}'`);
 }
@@ -83100,8 +83092,13 @@ async function run() {
     switch (action) {
         case 'web': return web();
         case 'technic': return technicRelease();
+        case 'import': return importer();
     }
     throw new Error(`Invalid action '${action}'`);
+}
+async function importer() {
+    await updateWeb();
+    await technicRelease();
 }
 async function web() {
     if (github.context.eventName === 'release') {

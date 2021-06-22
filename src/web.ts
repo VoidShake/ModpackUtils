@@ -48,16 +48,16 @@ interface MinecraftInstance {
    }>
 }
 
-export async function createRelease(release: RawRelease) {
+export async function createRelease(release: RawRelease, dir = '') {
    const tag = release.tag_name
 
-   const cfFile = 'minecraftinstance.json'
+   const cfFile = join(dir, 'minecraftinstance.json')
    if (!cfFile) throw new Error('minecraftinstance.json file missing')
 
    const cfData = JSON.parse(readFileSync(cfFile).toString()) as MinecraftInstance
 
    const installedAddons = cfData.installedAddons.filter(addon =>
-      existsSync(join('mods', addon.installedFile.fileName))
+      existsSync(join(dir, 'mods', addon.installedFile.fileName))
    )
 
    api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) })

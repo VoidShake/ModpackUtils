@@ -16,10 +16,16 @@ async function run() {
    switch (action) {
       case 'web': return web()
       case 'technic': return technicRelease()
+      case 'import': return importer()
    }
 
    throw new Error(`Invalid action '${action}'`)
 
+}
+
+async function importer() {
+   await updateWeb()
+   await technicRelease()
 }
 
 async function web() {

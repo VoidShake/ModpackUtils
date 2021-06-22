@@ -1,7 +1,7 @@
-import { getOctokit } from '@actions/github'
+import { context, getOctokit } from '@actions/github'
 
 export interface RawRelease {
-   body:string,
+   body: string,
    html_url: string
    id: number,
    name: string,
@@ -19,14 +19,12 @@ export interface Release {
 }
 
 
-//const { repo, actor } = context
-const repo = 'SteampunkAndDragons'
-const actor = 'Frozenpacks'
 
 export async function getReleases() {
-   const github = getOctokit(process.env.GITHUB_TOKEN ?? '')
-   const response = await github.request(`/repos/${actor}/${repo}/releases`)
-   return response.data.map(strip) as Release[]
+   const { repo, owner } = context.repo
+   const octokit = getOctokit(process.env.GITHUB_TOKEN ?? '')
+   const response = await octokit.request(`/repos/${owner}/${repo}/releases`)
+   return response.data as RawRelease[]
 }
 
 export function strip(raw: RawRelease): Release {
@@ -39,10 +37,4 @@ export function strip(raw: RawRelease): Release {
       date: published_at,
       changelog: body
    }
-}
-
-export async function getRelease(tag: string) {
-   const github = getOctokit(process.env.GITHUB_TOKEN ?? '')
-   const response = await github.request(`/repos/${actor}/${repo}/releases/tags/${tag}`)
-   return strip(response.data)
 }
