@@ -83860,9 +83860,7 @@ async function backtrackReleases() {
         });
         await extract_zip_default()(zip, { dir });
         const [gitDir] = (0,external_fs_.readdirSync)(dir);
-        console.log((0,external_fs_.readdirSync)((0,external_path_.join)(dir, gitDir)).join(', '));
-        if (false)
-            {}
+        await createRelease(release, (0,external_path_.join)(dir, gitDir));
         (0,core.info)(`Uploaded ${release.tag_name}`);
     }));
     core.endGroup;

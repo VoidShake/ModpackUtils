@@ -38,9 +38,8 @@ export async function backtrackReleases() {
       await unzip(zip, { dir })
 
       const [gitDir] = readdirSync(dir)
-      console.log(readdirSync(join(dir, gitDir)).join(', '))
 
-      if (false) await createRelease(release, join(dir, gitDir))
+      await createRelease(release, join(dir, gitDir))
 
       info(`Uploaded ${release.tag_name}`)
 
