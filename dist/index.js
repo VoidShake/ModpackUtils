@@ -83866,11 +83866,10 @@ async function backtrackReleases() {
             (0,core.info)(`Uploaded ${release.tag_name}`);
         }
         catch (e) {
-            (0,core.error)(`An error occured importing version ${release.tag_name}`);
-            (0,core.error)(e.message);
+            (0,core.error)(`An error occured importing version ${release.tag_name}: ${e.message}`);
         }
     }));
-    core.endGroup;
+    (0,core.endGroup)();
 }
 
 // EXTERNAL MODULE: ./node_modules/archiver/index.js

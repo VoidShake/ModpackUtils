@@ -46,12 +46,11 @@ export async function backtrackReleases() {
 
       } catch (e) {
 
-         error(`An error occured importing version ${release.tag_name}`)
-         error(e.message)
+         error(`An error occured importing version ${release.tag_name}: ${e.message}`)
 
       }
    }))
 
-   endGroup
+   endGroup()
 
 }
