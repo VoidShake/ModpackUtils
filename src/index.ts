@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { AxiosError } from 'axios';
+import { backtrackReleases } from './importer';
 import technicRelease from './technic';
 import { createRelease, updateWeb } from './web';
 
@@ -25,7 +26,7 @@ async function run() {
 
 async function importer() {
    await updateWeb()
-   await technicRelease()
+   await backtrackReleases()
 }
 
 async function web() {

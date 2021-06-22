@@ -15756,7 +15756,7 @@ var utils = __nccwpck_require__(328);
 var bind = __nccwpck_require__(7065);
 var Axios = __nccwpck_require__(8178);
 var mergeConfig = __nccwpck_require__(4831);
-var defaults = __nccwpck_require__(8661);
+var defaults = __nccwpck_require__(8190);
 
 /**
  * Create an instance of Axios
@@ -16141,7 +16141,7 @@ module.exports = function createError(message, config, code, request, response) 
 var utils = __nccwpck_require__(328);
 var transformData = __nccwpck_require__(9812);
 var isCancel = __nccwpck_require__(4057);
-var defaults = __nccwpck_require__(8661);
+var defaults = __nccwpck_require__(8190);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -16425,7 +16425,7 @@ module.exports = function transformData(data, headers, fns) {
 
 /***/ }),
 
-/***/ 8661:
+/***/ 8190:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -24935,7 +24935,7 @@ module.exports = function kindOf(val) {
 
 
 
-var typeOf = __nccwpck_require__(8190);
+var typeOf = __nccwpck_require__(8234);
 
 // data descriptor properties
 var data = {
@@ -24985,7 +24985,7 @@ module.exports = isDataDescriptor;
 
 /***/ }),
 
-/***/ 8190:
+/***/ 8234:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 var isBuffer = __nccwpck_require__(5625);
@@ -82697,15 +82697,150 @@ __nccwpck_require__.r(__webpack_exports__);
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
+;// CONCATENATED MODULE: external "child_process"
+const external_child_process_namespaceObject = require("child_process");;
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(5747);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(5622);
+;// CONCATENATED MODULE: ./src/releases.ts
+
+async function getReleases() {
+    var _a;
+    const { repo, owner } = github.context.repo;
+    const octokit = (0,github.getOctokit)((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
+    const response = await octokit.request(`/repos/${owner}/${repo}/releases`);
+    return response.data;
+}
+function strip(raw) {
+    const { html_url, tag_name, name, published_at, body } = raw;
+    return {
+        name,
+        url: html_url,
+        version: tag_name,
+        date: published_at,
+        changelog: body
+    };
+}
+
+// EXTERNAL MODULE: ./node_modules/axios/index.js
+var axios = __nccwpck_require__(6545);
+var axios_default = /*#__PURE__*/__nccwpck_require__.n(axios);
+// EXTERNAL MODULE: ./node_modules/form-data/lib/form_data.js
+var form_data = __nccwpck_require__(4334);
+var form_data_default = /*#__PURE__*/__nccwpck_require__.n(form_data);
+// EXTERNAL MODULE: ./node_modules/yaml/index.js
+var yaml = __nccwpck_require__(3552);
+var yaml_default = /*#__PURE__*/__nccwpck_require__.n(yaml);
+;// CONCATENATED MODULE: ./src/web.ts
+
+
+
+
+
+
+
+const webDir = 'web';
+const token = core.getInput('web_token');
+const api = axios_default().create({
+    baseURL: core.getInput('api'),
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+    }
+});
+async function updateWeb() {
+    await Promise.all([
+        ...updatePages(),
+        updateData(),
+        updateAssets(),
+    ]);
+}
+async function updateData() {
+    const file = (0,external_path_.join)(webDir, 'pack.yml');
+    if (!(0,external_fs_.existsSync)(file)) {
+        console.warn('Skip updating pack data');
+        return;
+    }
+    const packData = yaml_default().parse((0,external_fs_.readFileSync)(file).toString());
+    await api.put(`/pack`, packData);
+    console.log('Updated pack data');
+}
+async function createRelease(release, dir = '') {
+    const tag = release.tag_name;
+    const cfFile = (0,external_path_.join)(dir, 'minecraftinstance.json');
+    if (!cfFile)
+        throw new Error('minecraftinstance.json file missing');
+    const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
+    const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)(dir, 'mods', addon.installedFile.fileName)));
+    api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) });
+    console.log(`Created release for version '${tag}'`);
+}
+async function updateAssets() {
+    const assetsDir = (0,external_path_.join)(webDir, 'assets');
+    if (!(0,external_fs_.existsSync)(assetsDir)) {
+        console.warn('No assets defined');
+        return;
+    }
+    const assets = (0,external_fs_.readdirSync)(assetsDir).map(f => (0,external_path_.join)(assetsDir, f));
+    const assetsData = assets.reduce((data, img) => {
+        data.append((0,external_path_.basename)(img), (0,external_fs_.createReadStream)(img));
+        return data;
+    }, new (form_data_default())());
+    await api.put(`/pack/assets`, assetsData, { headers: assetsData.getHeaders() });
+    console.log(`Updated assets`);
+}
+function updatePages() {
+    const pageDir = (0,external_path_.join)(webDir, 'pages');
+    if (!(0,external_fs_.existsSync)(pageDir)) {
+        console.warn('No pages defined');
+        return [];
+    }
+    const pages = (0,external_fs_.readdirSync)(pageDir).map(f => (0,external_path_.join)(pageDir, f));
+    const parsed = pages.map(page => {
+        const ext = (0,external_path_.extname)(page);
+        const content = (0,external_fs_.readFileSync)(page).toString();
+        switch (ext) {
+            case '.json': return JSON.parse(content);
+            case '.yml': return yaml_default().parse(content);
+            default: return {};
+        }
+    });
+    return parsed.map(async (content) => {
+        await api.put('pack/page', content);
+        console.log(`Uploaded ${content.title}`);
+    });
+}
+
+;// CONCATENATED MODULE: ./src/importer.ts
+
+
+
+
+
+
+async function backtrackReleases() {
+    const { repo, owner } = github.context.repo;
+    const releases = await getReleases();
+    console.group('Importing releases');
+    (0,external_fs_.mkdirSync)('temp', { recursive: true });
+    await Promise.all(releases.map(async (release) => {
+        const dir = (0,external_path_.resolve)('temp', release.tag_name);
+        if (!(0,external_fs_.existsSync)(dir)) {
+            (0,external_child_process_namespaceObject.execSync)(`git clone https://github.com/${owner}/${repo}.git "${dir}"`);
+        }
+        (0,external_child_process_namespaceObject.execSync)(`git checkout ${release.tag_name}`, { cwd: dir });
+        await createRelease(release, dir);
+        console.log('Uploaded', release.tag_name);
+    }));
+    console.groupEnd();
+}
+
 // EXTERNAL MODULE: ./node_modules/archiver/index.js
 var archiver = __nccwpck_require__(3084);
 var archiver_default = /*#__PURE__*/__nccwpck_require__.n(archiver);
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(5747);
 // EXTERNAL MODULE: ./node_modules/dropbox/cjs/index.js
 var cjs = __nccwpck_require__(8939);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(5622);
 ;// CONCATENATED MODULE: ./src/dropbox.ts
 
 
@@ -82970,116 +83105,8 @@ async function uploadToRelease(file, release) {
     });
 }
 
-// EXTERNAL MODULE: ./node_modules/axios/index.js
-var axios = __nccwpck_require__(6545);
-var axios_default = /*#__PURE__*/__nccwpck_require__.n(axios);
-// EXTERNAL MODULE: ./node_modules/form-data/lib/form_data.js
-var form_data = __nccwpck_require__(4334);
-var form_data_default = /*#__PURE__*/__nccwpck_require__.n(form_data);
-// EXTERNAL MODULE: ./node_modules/yaml/index.js
-var yaml = __nccwpck_require__(3552);
-var yaml_default = /*#__PURE__*/__nccwpck_require__.n(yaml);
-;// CONCATENATED MODULE: ./src/releases.ts
-
-async function getReleases() {
-    var _a;
-    const { repo, owner } = context.repo;
-    const octokit = getOctokit((_a = process.env.GITHUB_TOKEN) !== null && _a !== void 0 ? _a : '');
-    const response = await octokit.request(`/repos/${owner}/${repo}/releases`);
-    return response.data;
-}
-function strip(raw) {
-    const { html_url, tag_name, name, published_at, body } = raw;
-    return {
-        name,
-        url: html_url,
-        version: tag_name,
-        date: published_at,
-        changelog: body
-    };
-}
-
-;// CONCATENATED MODULE: ./src/web.ts
-
-
-
-
-
-
-
-const webDir = 'web';
-const token = core.getInput('web_token');
-const api = axios_default().create({
-    baseURL: core.getInput('api'),
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-    }
-});
-async function updateWeb() {
-    await Promise.all([
-        ...updatePages(),
-        updateData(),
-        updateAssets(),
-    ]);
-}
-async function updateData() {
-    const file = (0,external_path_.join)(webDir, 'pack.yml');
-    if (!(0,external_fs_.existsSync)(file)) {
-        console.warn('Skip updating pack data');
-        return;
-    }
-    const packData = yaml_default().parse((0,external_fs_.readFileSync)(file).toString());
-    await api.put(`/pack`, packData);
-    console.log('Updated pack data');
-}
-async function createRelease(release, dir = '') {
-    const tag = release.tag_name;
-    const cfFile = (0,external_path_.join)(dir, 'minecraftinstance.json');
-    if (!cfFile)
-        throw new Error('minecraftinstance.json file missing');
-    const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
-    const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)(dir, 'mods', addon.installedFile.fileName)));
-    api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) });
-    console.log(`Created release for version '${tag}'`);
-}
-async function updateAssets() {
-    const assetsDir = (0,external_path_.join)(webDir, 'assets');
-    if (!(0,external_fs_.existsSync)(assetsDir)) {
-        console.warn('No assets defined');
-        return;
-    }
-    const assets = (0,external_fs_.readdirSync)(assetsDir).map(f => (0,external_path_.join)(assetsDir, f));
-    const assetsData = assets.reduce((data, img) => {
-        data.append((0,external_path_.basename)(img), (0,external_fs_.createReadStream)(img));
-        return data;
-    }, new (form_data_default())());
-    await api.put(`/pack/assets`, assetsData, { headers: assetsData.getHeaders() });
-    console.log(`Updated assets`);
-}
-function updatePages() {
-    const pageDir = (0,external_path_.join)(webDir, 'pages');
-    if (!(0,external_fs_.existsSync)(pageDir)) {
-        console.warn('No pages defined');
-        return [];
-    }
-    const pages = (0,external_fs_.readdirSync)(pageDir).map(f => (0,external_path_.join)(pageDir, f));
-    const parsed = pages.map(page => {
-        const ext = (0,external_path_.extname)(page);
-        const content = (0,external_fs_.readFileSync)(page).toString();
-        switch (ext) {
-            case '.json': return JSON.parse(content);
-            case '.yml': return yaml_default().parse(content);
-            default: return {};
-        }
-    });
-    return parsed.map(async (content) => {
-        await api.put('pack/page', content);
-        console.log(`Uploaded ${content.title}`);
-    });
-}
-
 ;// CONCATENATED MODULE: ./src/index.ts
+
 
 
 
@@ -83098,7 +83125,7 @@ async function run() {
 }
 async function importer() {
     await updateWeb();
-    await technicRelease();
+    await backtrackReleases();
 }
 async function web() {
     if (github.context.eventName === 'release') {
