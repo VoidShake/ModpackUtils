@@ -32,7 +32,8 @@ async function importer() {
 async function web() {
 
    if (github.context.eventName === 'release') {
-      await createRelease(github.context.payload.release)
+      const release = await createRelease(github.context.payload.release)
+      core.setOutput('release', release)
    }
 
    await updateWeb()

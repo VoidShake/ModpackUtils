@@ -67,9 +67,11 @@ export async function createRelease(release: RawRelease, dir = '') {
       existsSync(join(dir, 'mods', addon.installedFile.fileName))
    )
 
-   api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) })
+   const { data } = await api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) })
 
    info(`Created release for version '${tag}'`)
+   
+   return data
 }
 
 async function updateAssets() {

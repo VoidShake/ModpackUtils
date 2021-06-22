@@ -83791,8 +83791,9 @@ async function createRelease(release, dir = '') {
         throw new Error('minecraftinstance.json file missing');
     const cfData = JSON.parse((0,external_fs_.readFileSync)(cfFile).toString());
     const installedAddons = cfData.installedAddons.filter(addon => (0,external_fs_.existsSync)((0,external_path_.join)(dir, 'mods', addon.installedFile.fileName)));
-    api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) });
+    const { data } = await api.put(`/pack/release/${tag}`, { installedAddons, ...strip(release) });
     (0,core.info)(`Created release for version '${tag}'`);
+    return data;
 }
 async function updateAssets() {
     const assetsDir = (0,external_path_.join)(webDir, 'assets');
@@ -84166,7 +84167,8 @@ async function importer() {
 }
 async function web() {
     if (lib_github.context.eventName === 'release') {
-        await createRelease(lib_github.context.payload.release);
+        const release = await createRelease(lib_github.context.payload.release);
+        core.setOutput('release', release);
     }
     await updateWeb();
 }
