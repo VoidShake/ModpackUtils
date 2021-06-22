@@ -8072,7 +8072,7 @@ function simpleEnd(buf) {
  * @license [MIT]{@link https://github.com/archiverjs/node-archiver/blob/master/LICENSE}
  * @copyright (c) 2012-2014 Chris Talkington, contributors.
  */
-var Archiver = __nccwpck_require__(5010);
+var Archiver = __nccwpck_require__(2418);
 
 var formats = {};
 
@@ -8152,7 +8152,7 @@ module.exports = vending;
 
 /***/ }),
 
-/***/ 5010:
+/***/ 2418:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /**
@@ -33815,7 +33815,7 @@ exports.merge = merge;
 
 /***/ }),
 
-/***/ 628:
+/***/ 5010:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 var fs = __nccwpck_require__(5747);
@@ -82465,7 +82465,7 @@ module.exports = __nccwpck_require__(5065).YAML
 
 var fs = __nccwpck_require__(5747);
 var zlib = __nccwpck_require__(8761);
-var fd_slicer = __nccwpck_require__(628);
+var fd_slicer = __nccwpck_require__(5010);
 var crc32 = __nccwpck_require__(4794);
 var util = __nccwpck_require__(1669);
 var EventEmitter = __nccwpck_require__(8614).EventEmitter;
@@ -83712,6 +83712,12 @@ __nccwpck_require__.r(__webpack_exports__);
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var lib_github = __nccwpck_require__(5438);
+// EXTERNAL MODULE: ./node_modules/axios/index.js
+var axios = __nccwpck_require__(6545);
+var axios_default = /*#__PURE__*/__nccwpck_require__.n(axios);
+// EXTERNAL MODULE: ./node_modules/extract-zip/index.js
+var extract_zip = __nccwpck_require__(460);
+var extract_zip_default = /*#__PURE__*/__nccwpck_require__.n(extract_zip);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(5747);
 // EXTERNAL MODULE: external "path"
@@ -83736,9 +83742,6 @@ function strip(raw) {
     };
 }
 
-// EXTERNAL MODULE: ./node_modules/axios/index.js
-var axios = __nccwpck_require__(6545);
-var axios_default = /*#__PURE__*/__nccwpck_require__.n(axios);
 // EXTERNAL MODULE: ./node_modules/form-data/lib/form_data.js
 var form_data = __nccwpck_require__(4334);
 var form_data_default = /*#__PURE__*/__nccwpck_require__.n(form_data);
@@ -83832,6 +83835,8 @@ function updatePages() {
 
 
 
+
+
 async function backtrackReleases() {
     const { repo, owner } = lib_github.context.repo;
     const releases = await getReleases();
@@ -83840,10 +83845,20 @@ async function backtrackReleases() {
     (0,external_fs_.mkdirSync)('temp', { recursive: true });
     await Promise.all(releases.map(async (release) => {
         const dir = (0,external_path_.resolve)('temp', release.tag_name);
-        const url = await github.rest.repos.downloadZipballArchive({
+        const zip = dir + '.zip';
+        const { url } = await github.rest.repos.downloadZipballArchive({
             owner, repo, ref: release.tag_name,
         });
-        console.log(url);
+        const { data } = await axios_default().get(url, { responseType: 'stream' });
+        const writer = (0,external_fs_.createWriteStream)(zip);
+        data.pipe(writer);
+        await new Promise((res, rej) => {
+            writer.on('finish', res);
+            writer.on('error', rej);
+        });
+        await extract_zip_default()(zip, { dir });
+        (0,core.debug)((0,external_fs_.readdirSync)('temp').join(', '));
+        (0,core.debug)((0,external_fs_.readdirSync)(dir).join(', '));
         if (false)
             {}
         (0,core.info)(`Uploaded ${release.tag_name}`);
@@ -83883,9 +83898,6 @@ var glob_default = /*#__PURE__*/__nccwpck_require__.n(glob);
 // EXTERNAL MODULE: ./node_modules/cpy/index.js
 var cpy = __nccwpck_require__(4070);
 var cpy_default = /*#__PURE__*/__nccwpck_require__.n(cpy);
-// EXTERNAL MODULE: ./node_modules/extract-zip/index.js
-var extract_zip = __nccwpck_require__(460);
-var extract_zip_default = /*#__PURE__*/__nccwpck_require__.n(extract_zip);
 // EXTERNAL MODULE: ./node_modules/rimraf/rimraf.js
 var rimraf = __nccwpck_require__(4959);
 var rimraf_default = /*#__PURE__*/__nccwpck_require__.n(rimraf);

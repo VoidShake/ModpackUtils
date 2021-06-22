@@ -1,6 +1,8 @@
-import { endGroup, getInput, info, startGroup } from '@actions/core'
+import { debug, endGroup, getInput, info, startGroup } from '@actions/core'
 import { context, getOctokit } from '@actions/github'
-import { mkdirSync } from 'fs'
+import axios from 'axios'
+import unzip from 'extract-zip'
+import { createWriteStream, mkdirSync, readdirSync } from 'fs'
 import { resolve } from 'path'
 import { getReleases } from './releases'
 import { createRelease } from './web'
@@ -18,12 +20,25 @@ export async function backtrackReleases() {
    await Promise.all(releases.map(async release => {
 
       const dir = resolve('temp', release.tag_name)
+      const zip = dir + '.zip'
 
-      const url = await github.rest.repos.downloadZipballArchive({
+      const { url } = await github.rest.repos.downloadZipballArchive({
          owner, repo, ref: release.tag_name,
       })
 
-      console.log(url)
+      const { data } = await axios.get(url, { responseType: 'stream' })
+      const writer = createWriteStream(zip)
+      data.pipe(writer)
+
+      await new Promise((res, rej) => {
+         writer.on('finish', res)
+         writer.on('error', rej)
+      })
+
+      await unzip(zip, { dir })
+
+      debug(readdirSync('temp').join(', '))
+      debug(readdirSync(dir).join(', '))
 
       if (false) await createRelease(release, dir)
 
