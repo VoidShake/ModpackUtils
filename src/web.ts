@@ -6,16 +6,29 @@ import { basename, extname, join } from 'path'
 import yaml from 'yaml'
 import { RawRelease, strip } from './releases'
 
-const webDir = 'web'
-const token = getInput('web_token', { required: true })
+export interface MinecraftInstance {
+   installedAddons: Array<{
+      addonID: number
+      installedFile: {
+         categorySectionPackageType: number
+         id: number
+         fileName: string
+      }
+   }>
+}
 
-const api = axios.create({
-   baseURL: getInput('api'),
-   headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-   }
-})
+const webDir = 'web'
+
+function getApi() {
+   const token = getInput('web_token', { required: true })
+   return axios.create({
+      baseURL: getInput('api'),
+      headers: {
+         'Content-Type': 'application/json',
+         'Authorization': `Bearer ${token}`,
+      }
+   })
+}
 
 export async function updateWeb() {
 
@@ -32,6 +45,8 @@ export async function updateWeb() {
 }
 
 async function updateData() {
+   const api = getApi()
+
    const file = join(webDir, 'pack.yml')
    if (!existsSync(file)) {
       warning('Skip updating pack data')
@@ -44,18 +59,9 @@ async function updateData() {
    info('Updated pack data')
 }
 
-export interface MinecraftInstance {
-   installedAddons: Array<{
-      addonID: number
-      installedFile: {
-         categorySectionPackageType: number
-         id: number
-         fileName: string
-      }
-   }>
-}
-
 export async function createRelease(release: RawRelease, dir = '') {
+   const api = getApi()
+   
    const tag = release.tag_name
 
    const cfFile = join(dir, 'minecraftinstance.json')
@@ -75,6 +81,8 @@ export async function createRelease(release: RawRelease, dir = '') {
 }
 
 async function updateAssets() {
+   const api = getApi()
+   
    const assetsDir = join(webDir, 'assets')
 
    if (!existsSync(assetsDir)) {
@@ -93,6 +101,8 @@ async function updateAssets() {
 }
 
 function updatePages() {
+   const api = getApi()
+   
    const pageDir = join(webDir, 'pages')
 
    if (!existsSync(pageDir)) {

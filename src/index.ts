@@ -43,8 +43,8 @@ async function web() {
 run().catch(e => {
 
    if (isAxiosError(e)) {
-      console.error(`API Request failed: ${e.config.url}`)
-      console.error(`   ${e.response?.data}`)
+      core.error(`API Request failed: ${e.config.url}`)
+      core.error(`   ${e.response?.data}`)
       throw e
    }
 

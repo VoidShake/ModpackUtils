@@ -83757,14 +83757,16 @@ var yaml_default = /*#__PURE__*/__nccwpck_require__.n(yaml);
 
 
 const webDir = 'web';
-const token = (0,core.getInput)('web_token', { required: true });
-const api = axios_default().create({
-    baseURL: (0,core.getInput)('api'),
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-    }
-});
+function getApi() {
+    const token = (0,core.getInput)('web_token', { required: true });
+    return axios_default().create({
+        baseURL: (0,core.getInput)('api'),
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        }
+    });
+}
 async function updateWeb() {
     (0,core.startGroup)('Updating web');
     await Promise.all([
@@ -83775,6 +83777,7 @@ async function updateWeb() {
     (0,core.endGroup)();
 }
 async function updateData() {
+    const api = getApi();
     const file = (0,external_path_.join)(webDir, 'pack.yml');
     if (!(0,external_fs_.existsSync)(file)) {
         (0,core.warning)('Skip updating pack data');
@@ -83785,6 +83788,7 @@ async function updateData() {
     (0,core.info)('Updated pack data');
 }
 async function createRelease(release, dir = '') {
+    const api = getApi();
     const tag = release.tag_name;
     const cfFile = (0,external_path_.join)(dir, 'minecraftinstance.json');
     if (!(0,external_fs_.existsSync)(cfFile))
@@ -83796,6 +83800,7 @@ async function createRelease(release, dir = '') {
     return data;
 }
 async function updateAssets() {
+    const api = getApi();
     const assetsDir = (0,external_path_.join)(webDir, 'assets');
     if (!(0,external_fs_.existsSync)(assetsDir)) {
         (0,core.warning)('No assets defined');
@@ -83810,6 +83815,7 @@ async function updateAssets() {
     (0,core.info)(`Updated assets`);
 }
 function updatePages() {
+    const api = getApi();
     const pageDir = (0,external_path_.join)(webDir, 'pages');
     if (!(0,external_fs_.existsSync)(pageDir)) {
         (0,core.warning)('No pages defined');
@@ -84180,8 +84186,8 @@ async function web() {
 run().catch(e => {
     var _a;
     if (isAxiosError(e)) {
-        console.error(`API Request failed: ${e.config.url}`);
-        console.error(`   ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
+        core.error(`API Request failed: ${e.config.url}`);
+        core.error(`   ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
         throw e;
     }
     core.setFailed(e.message);
