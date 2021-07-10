@@ -83982,7 +83982,7 @@ async function replaceContent() {
     const assetsRegex = replaced.map(([from, to]) => {
         const [modFrom, idFrom] = from.split(':');
         const [modTo, idTo] = to.split(':');
-        return [new RegExp(`\/${modFrom}\/(.+)\/${idFrom}\.json$`), `/${modTo}/$1/${idTo}.json`];
+        return [new RegExp(`/${modFrom}/(.+)/${idFrom}.json$`), `/${modTo}/$1/${idTo}.json`];
     });
     const langRegex = replaced.map(([from, to]) => {
         const [modFrom, idFrom] = from.split(':');
@@ -84038,7 +84038,9 @@ async function replaceContent() {
         namespaces.forEach(mod => {
             const outDir = (0,external_path_.join)(out, 'assets', mod, 'lang');
             (0,external_fs_.mkdirSync)(outDir, { recursive: true });
-            (0,external_fs_.writeFileSync)((0,external_path_.join)(outDir, 'en_us.json'), JSON.stringify(translationsOut, null, 2));
+            const outFile = (0,external_path_.join)(outDir, 'en_us.json');
+            const base = (0,external_fs_.existsSync)(outFile) ? JSON.parse((0,external_fs_.readFileSync)(outFile).toString()) : {};
+            (0,external_fs_.writeFileSync)(outFile, JSON.stringify({ ...translationsOut, ...base }, null, 2));
         });
         (0,core.info)('Updated translations');
     }

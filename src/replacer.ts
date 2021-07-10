@@ -31,7 +31,7 @@ export default async function replaceContent() {
    const assetsRegex = replaced.map(([from, to]) => {
       const [modFrom, idFrom] = from.split(':')
       const [modTo, idTo] = to.split(':')
-      return [new RegExp(`\/${modFrom}\/(.+)\/${idFrom}\.json$`), `/${modTo}/$1/${idTo}.json`] as [RegExp, string]
+      return [new RegExp(`/${modFrom}/(.+)/${idFrom}.json$`), `/${modTo}/$1/${idTo}.json`] as [RegExp, string]
    })
 
    const langRegex = replaced.map(([from, to]) => {
@@ -104,7 +104,10 @@ export default async function replaceContent() {
 
          const outDir = join(out, 'assets', mod, 'lang')
          mkdirSync(outDir, { recursive: true })
-         writeFileSync(join(outDir, 'en_us.json'), JSON.stringify(translationsOut, null, 2))
+         const outFile = join(outDir, 'en_us.json')
+
+         const base = existsSync(outFile) ? JSON.parse(readFileSync(outFile).toString()) : {}
+         writeFileSync(outFile, JSON.stringify({ ...translationsOut, ...base }, null, 2))
 
       })
 
