@@ -84038,8 +84038,9 @@ async function replaceContent() {
         namespaces.forEach(mod => {
             const outDir = (0,external_path_.join)(out, 'assets', mod, 'lang');
             (0,external_fs_.mkdirSync)(outDir, { recursive: true });
+            const baseFile = (0,external_path_.join)('kubejs', 'assets', mod, 'lang', 'en_us.json');
             const outFile = (0,external_path_.join)(outDir, 'en_us.json');
-            const base = (0,external_fs_.existsSync)(outFile) ? JSON.parse((0,external_fs_.readFileSync)(outFile).toString()) : {};
+            const base = (0,external_fs_.existsSync)(baseFile) ? JSON.parse((0,external_fs_.readFileSync)(baseFile).toString()) : {};
             (0,external_fs_.writeFileSync)(outFile, JSON.stringify({ ...translationsOut, ...base }, null, 2));
         });
         (0,core.info)('Updated translations');

@@ -104,9 +104,11 @@ export default async function replaceContent() {
 
          const outDir = join(out, 'assets', mod, 'lang')
          mkdirSync(outDir, { recursive: true })
+
+         const baseFile = join('kubejs', 'assets', mod, 'lang', 'en_us.json')
          const outFile = join(outDir, 'en_us.json')
 
-         const base = existsSync(outFile) ? JSON.parse(readFileSync(outFile).toString()) : {}
+         const base = existsSync(baseFile) ? JSON.parse(readFileSync(baseFile).toString()) : {}
          writeFileSync(outFile, JSON.stringify({ ...translationsOut, ...base }, null, 2))
 
       })
