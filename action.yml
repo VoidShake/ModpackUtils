@@ -12,7 +12,7 @@ inputs:
     description: "The web api token"
     required: false
   github_token:
-    description: "The github tokn"
+    description: "The github token"
     required: false
   dropbox_token:
     description: "The dropbox access token"
@@ -21,6 +21,12 @@ inputs:
     description: "The dropbox path"
     required: false
     default: ""
+  pack_name:
+    description: "Pack name"
+    required: false
+  pack_version:
+    description: "Pack name"
+    required: false
 runs:
   using: "node12"
   main: dist/index.js
