@@ -42,6 +42,22 @@ function getApi() {
   });
 }
 
+export interface WebData {
+  name: string;
+  author: string;
+  description: string;
+  slug: string;
+  assets?: Record<string, string | undefined>;
+  links?: Record<string, string | undefined>;
+  private: boolean;
+}
+
+export async function getWebData() {
+  const api = getApi();
+  const { data } = await api.get<WebData>("/pack");
+  return data;
+}
+
 export async function updateWeb() {
   startGroup("Updating web");
 
@@ -61,7 +77,7 @@ async function updateData() {
 
   const packData = yaml.parse(readFileSync(file).toString());
 
-  await api.put(`/pack`, packData);
+  await api.put("/pack", packData);
   info("Updated pack data");
 }
 

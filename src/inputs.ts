@@ -2,7 +2,7 @@ import { getInput } from "@actions/core";
 import * as github from "@actions/github";
 import { readFileSync } from "fs";
 import { RawRelease } from "./releases";
-import { MinecraftInstance } from "./web";
+import { getWebData, MinecraftInstance } from "./web";
 
 export function getPackVersion(): string | null {
   if (github.context.eventName === "release") {
@@ -13,9 +13,14 @@ export function getPackVersion(): string | null {
   }
 }
 
-export function getPackName() {
+export async function getPackName() {
   const customName = getInput("pack_name");
   if (customName) return customName;
+
+  if (getInput("web_token")) {
+    const pack = await getWebData();
+    return pack.name;
+  }
 
   const instance = JSON.parse(
     readFileSync("minecraftinstance.json").toString()

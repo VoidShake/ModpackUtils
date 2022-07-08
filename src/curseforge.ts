@@ -1,7 +1,7 @@
 import { endGroup, getInput, info, startGroup, warning } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import archiver from "archiver";
-import { createWriteStream, existsSync, readFileSync, writeFileSync } from "fs";
+import { createWriteStream, existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { getPackName, getPackVersion } from "./inputs";
 import { RawRelease } from "./releases";
@@ -25,14 +25,16 @@ export default async function curseforgeRelease() {
 }
 
 async function zipAndUpload(name: string) {
-  createManifest();
-
   const overrides = ["config", "mods", "kubejs", "defaultconfigs"];
   const archive = archiver("zip");
   const file = name + ".zip";
 
   archive.pipe(createWriteStream(file));
   overrides.forEach((dir) => archive.directory(dir, join("overrides", dir)));
+
+  const manifest = await createManifest();
+  archive.append(manifest, { name: "manifest.json" });
+
   await archive.finalize();
 
   if (context.eventName === "release") {
@@ -63,7 +65,7 @@ async function uploadToRelease(file: string, release: RawRelease) {
   });
 }
 
-function createManifest() {
+async function createManifest() {
   const instance = JSON.parse(
     readFileSync("minecraftinstance.json").toString()
   ) as MinecraftInstance;
@@ -92,11 +94,11 @@ function createManifest() {
     files,
     manifestType: "minecraftModpack",
     manifestVersion: 1,
-    name: getPackName(),
+    name: await getPackName(),
     version: getPackVersion(),
     author: "possible_triangle",
     overrides: "overrides",
   };
 
-  writeFileSync("manifest.json", JSON.stringify(manifest, null, 2));
+  return JSON.stringify(manifest, null, 2);
 }
