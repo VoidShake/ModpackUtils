@@ -47,7 +47,9 @@ export async function backtrackReleases() {
         info(`Uploaded ${release.tag_name}`);
       } catch (e) {
         error(
-          `An error occured importing version ${release.tag_name}: ${e.message}`
+          `An error occured importing version ${release.tag_name}: ${
+            (e as Error).message
+          }`
         );
       }
     })
