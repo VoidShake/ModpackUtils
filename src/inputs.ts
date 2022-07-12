@@ -28,3 +28,9 @@ export async function getPackName() {
 
   return instance.name;
 }
+
+export function getRelease(): RawRelease | undefined {
+  if (github.context.eventName === "release") {
+    return github.context.payload.release;
+  }
+}

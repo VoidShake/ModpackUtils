@@ -88672,16 +88672,16 @@ var lib_github = __nccwpck_require__(5438);
 // EXTERNAL MODULE: ./node_modules/archiver/index.js
 var archiver = __nccwpck_require__(3084);
 var archiver_default = /*#__PURE__*/__nccwpck_require__.n(archiver);
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(5747);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(5622);
 // EXTERNAL MODULE: ./node_modules/axios/index.js
 var axios = __nccwpck_require__(6545);
 var axios_default = /*#__PURE__*/__nccwpck_require__.n(axios);
 // EXTERNAL MODULE: ./node_modules/form-data/lib/form_data.js
 var form_data = __nccwpck_require__(4334);
 var form_data_default = /*#__PURE__*/__nccwpck_require__.n(form_data);
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(5747);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(5622);
 // EXTERNAL MODULE: ./node_modules/yaml/index.js
 var yaml = __nccwpck_require__(3552);
 var yaml_default = /*#__PURE__*/__nccwpck_require__.n(yaml);
@@ -88827,6 +88827,11 @@ async function getPackName() {
     }
     const instance = JSON.parse((0,external_fs_.readFileSync)("minecraftinstance.json").toString());
     return instance.name;
+}
+function getRelease() {
+    if (lib_github.context.eventName === "release") {
+        return lib_github.context.payload.release;
+    }
 }
 
 // EXTERNAL MODULE: ./node_modules/glob/glob.js
@@ -89062,6 +89067,8 @@ function removeClientContent() {
 
 
 
+
+
 async function curseforgeRelease() {
     (0,core.startGroup)("Creating zip releases for CurseForge");
     await replaceContent();
@@ -89071,7 +89078,21 @@ async function curseforgeRelease() {
     await zipAndUpload("server");
     (0,core.endGroup)();
 }
+function curseforge_getApi() {
+    const token = (0,core.getInput)("curseforge_token", { required: true });
+    return axios_default().create({
+        baseURL: "https://minecraft.curseforge.com/api",
+        headers: {
+            "X-Api-Token": token,
+        },
+    });
+}
 async function zipAndUpload(name) {
+    const release = getRelease();
+    if (!release) {
+        (0,core.error)("CurseForge uploads can only be triggered on release");
+        return;
+    }
     const overrides = ["config", "mods", "kubejs", "defaultconfigs"];
     const archive = archiver_default()("zip");
     const file = name + ".zip";
@@ -89080,8 +89101,18 @@ async function zipAndUpload(name) {
     const manifest = await createManifest();
     archive.append(manifest, { name: "manifest.json" });
     await archive.finalize();
+    const data = new (form_data_default())();
+    data.append("file", (0,external_fs_.createReadStream)(file));
+    data.append("metadata", {
+        changelogType: "markdown",
+        changelog: release.body,
+        releaseType: release.prerelease ? "alpha" : "release",
+    });
+    const projectID = (0,core.getInput)("curseforge_project", { required: true });
+    const api = curseforge_getApi();
+    await api.post(`projects/${projectID}/upload-file`, { data });
     if (lib_github.context.eventName === "release") {
-        await uploadToRelease(file, lib_github.context.payload.release);
+        await uploadToRelease(file, release);
     }
 }
 async function uploadToRelease(file, release) {
@@ -89218,6 +89249,7 @@ async function uploadToDropbox(input) {
 
 
 
+
 async function technicRelease() {
     (0,core.startGroup)("Creating zip releases for TechnicPack");
     await replaceContent();
@@ -89235,9 +89267,9 @@ async function technic_zipAndUpload(name) {
     paths.forEach((dir) => archive.directory(dir, dir));
     await archive.finalize();
     await uploadToDropbox(file);
-    if (lib_github.context.eventName === "release") {
-        await technic_uploadToRelease(file, lib_github.context.payload.release);
-    }
+    const release = getRelease();
+    if (release)
+        await technic_uploadToRelease(file, release);
 }
 async function technic_uploadToRelease(file, release) {
     const token = (0,core.getInput)("github_token");
@@ -89288,8 +89320,9 @@ async function importer() {
     await backtrackReleases();
 }
 async function web() {
-    if (lib_github.context.eventName === "release") {
-        const release = await createRelease(lib_github.context.payload.release);
+    const githubRelease = getRelease();
+    if (githubRelease) {
+        const release = await createRelease(githubRelease);
         core.setOutput("release", release);
     }
     await updateWeb();

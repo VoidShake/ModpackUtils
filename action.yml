@@ -27,6 +27,12 @@ inputs:
   pack_version:
     description: "Pack name"
     required: false
+  curseforge_token:
+    description: "The curseforge access token"
+    required: false
+  curseforge_project:
+    description: "The curseforge project ID"
+    required: false
 runs:
   using: "node12"
   main: dist/index.js

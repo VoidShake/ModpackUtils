@@ -3,6 +3,7 @@ import { context, getOctokit } from "@actions/github";
 import archiver from "archiver";
 import { createWriteStream, readFileSync } from "fs";
 import uploadToDropbox from "./dropbox";
+import { getRelease } from "./inputs";
 import { RawRelease } from "./releases";
 import replaceContent from "./replacer";
 import extractResources from "./resources";
@@ -33,9 +34,8 @@ async function zipAndUpload(name: string) {
 
   await uploadToDropbox(file);
 
-  if (context.eventName === "release") {
-    await uploadToRelease(file, context.payload.release);
-  }
+  const release = getRelease();
+  if (release) await uploadToRelease(file, release);
 }
 
 async function uploadToRelease(file: string, release: RawRelease) {

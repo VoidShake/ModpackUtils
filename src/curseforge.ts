@@ -1,9 +1,23 @@
-import { endGroup, getInput, info, startGroup, warning } from "@actions/core";
+import {
+  endGroup,
+  error,
+  getInput,
+  info,
+  startGroup,
+  warning,
+} from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import archiver from "archiver";
-import { createWriteStream, existsSync, readFileSync } from "fs";
+import axios from "axios";
+import FormData from "form-data";
+import {
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  readFileSync,
+} from "fs";
 import { join } from "path";
-import { getPackName, getPackVersion } from "./inputs";
+import { getPackName, getPackVersion, getRelease } from "./inputs";
 import { RawRelease } from "./releases";
 import replaceContent from "./replacer";
 import extractResources from "./resources";
@@ -24,7 +38,24 @@ export default async function curseforgeRelease() {
   endGroup();
 }
 
+function getApi() {
+  const token = getInput("curseforge_token", { required: true });
+
+  return axios.create({
+    baseURL: "https://minecraft.curseforge.com/api",
+    headers: {
+      "X-Api-Token": token,
+    },
+  });
+}
+
 async function zipAndUpload(name: string) {
+  const release = getRelease();
+  if (!release) {
+    error("CurseForge uploads can only be triggered on release");
+    return;
+  }
+
   const overrides = ["config", "mods", "kubejs", "defaultconfigs"];
   const archive = archiver("zip");
   const file = name + ".zip";
@@ -37,8 +68,20 @@ async function zipAndUpload(name: string) {
 
   await archive.finalize();
 
+  const data = new FormData();
+  data.append("file", createReadStream(file));
+  data.append("metadata", {
+    changelogType: "markdown",
+    changelog: release.body,
+    releaseType: release.prerelease ? "alpha" : "release",
+  });
+
+  const projectID = getInput("curseforge_project", { required: true });
+  const api = getApi();
+  await api.post(`projects/${projectID}/upload-file`, { data });
+
   if (context.eventName === "release") {
-    await uploadToRelease(file, context.payload.release);
+    await uploadToRelease(file, release);
   }
 }
 

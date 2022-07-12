@@ -1,8 +1,8 @@
 import * as core from "@actions/core";
-import * as github from "@actions/github";
 import { AxiosError } from "axios";
 import curseforgeRelease from "./curseforge";
 import { backtrackReleases } from "./importer";
+import { getRelease } from "./inputs";
 import technicRelease from "./technic";
 import { createRelease, updateWeb } from "./web";
 
@@ -33,8 +33,9 @@ async function importer() {
 }
 
 async function web() {
-  if (github.context.eventName === "release") {
-    const release = await createRelease(github.context.payload.release);
+  const githubRelease = getRelease();
+  if (githubRelease) {
+    const release = await createRelease(githubRelease);
     core.setOutput("release", release);
   }
 
