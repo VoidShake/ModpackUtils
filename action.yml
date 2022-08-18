@@ -7,7 +7,7 @@ inputs:
   api:
     description: "The remote url of the web api"
     required: false
-    default: "https://packs.macarena.ceo/api"
+    default: "https://packs.somethingcatchy.net/api"
   web_token:
     description: "The web api token"
     required: false
