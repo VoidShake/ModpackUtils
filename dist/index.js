@@ -86475,6 +86475,7 @@ const axios_1 = __importDefault(__nccwpck_require__(96545));
 const form_data_1 = __importDefault(__nccwpck_require__(64334));
 const fs_1 = __nccwpck_require__(57147);
 const path_1 = __nccwpck_require__(71017);
+const error_1 = __nccwpck_require__(6388);
 const inputs_1 = __nccwpck_require__(7063);
 const replacer_1 = __importDefault(__nccwpck_require__(80279));
 const resources_1 = __importDefault(__nccwpck_require__(74375));
@@ -86512,6 +86513,12 @@ async function zipAndUpload(name) {
     const manifest = await createManifest();
     archive.append(manifest, { name: "manifest.json" });
     await archive.finalize();
+    await Promise.all([
+        uploadToRelease(file, release).catch((0, error_1.withMessage)("An error occured when uploading to github")),
+        uploadToCurseforge(file, release).catch((0, error_1.withMessage)("An error occured when uploading to curseforge")),
+    ]);
+}
+async function uploadToCurseforge(file, release) {
     const data = new form_data_1.default();
     data.append("file", (0, fs_1.createReadStream)(file));
     data.append("metadata", JSON.stringify({
@@ -86522,9 +86529,6 @@ async function zipAndUpload(name) {
     const projectID = (0, core_1.getInput)("curseforge_project", { required: true });
     const api = getApi();
     await api.post(`projects/${projectID}/upload-file`, { data });
-    if (github_1.context.eventName === "release") {
-        await uploadToRelease(file, release);
-    }
 }
 async function uploadToRelease(file, release) {
     const token = (0, core_1.getInput)("github_token");

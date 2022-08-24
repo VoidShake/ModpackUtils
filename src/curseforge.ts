@@ -69,7 +69,7 @@ async function zipAndUpload(name: string) {
 
   await archive.finalize();
 
-  await Promise.allSettled([
+  await Promise.all([
     uploadToRelease(file, release).catch(
       withMessage("An error occured when uploading to github")
     ),
@@ -97,7 +97,6 @@ async function uploadToCurseforge(file: string, release: RawRelease) {
 }
 
 async function uploadToRelease(file: string, release: RawRelease) {
-  if (context.eventName !== "release") return;
   const token = getInput("github_token");
   if (!token) {
     warning("Github token missing, not uploading to release");
