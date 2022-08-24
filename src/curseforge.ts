@@ -17,6 +17,7 @@ import {
   readFileSync,
 } from "fs";
 import { join } from "path";
+import { withMessage } from "./error";
 import { getPackName, getPackVersion, getRelease } from "./inputs";
 import { RawRelease } from "./releases";
 import replaceContent from "./replacer";
@@ -68,6 +69,17 @@ async function zipAndUpload(name: string) {
 
   await archive.finalize();
 
+  await Promise.allSettled([
+    uploadToRelease(file, release).catch(
+      withMessage("An error occured when uploading to github")
+    ),
+    uploadToCurseforge(file, release).catch(
+      withMessage("An error occured when uploading to curseforge")
+    ),
+  ]);
+}
+
+async function uploadToCurseforge(file: string, release: RawRelease) {
   const data = new FormData();
   data.append("file", createReadStream(file));
   data.append(
@@ -82,13 +94,10 @@ async function zipAndUpload(name: string) {
   const projectID = getInput("curseforge_project", { required: true });
   const api = getApi();
   await api.post(`projects/${projectID}/upload-file`, { data });
-
-  if (context.eventName === "release") {
-    await uploadToRelease(file, release);
-  }
 }
 
 async function uploadToRelease(file: string, release: RawRelease) {
+  if (context.eventName !== "release") return;
   const token = getInput("github_token");
   if (!token) {
     warning("Github token missing, not uploading to release");

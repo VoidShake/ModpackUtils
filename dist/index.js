@@ -86618,6 +86618,63 @@ exports["default"] = uploadToDropbox;
 
 /***/ }),
 
+/***/ 6388:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.withMessage = exports.logError = void 0;
+const core = __importStar(__nccwpck_require__(42186));
+function isAxiosError(e) {
+    return !!e.isAxiosError;
+}
+function logError(e) {
+    var _a;
+    if (isAxiosError(e)) {
+        core.error(`API Request failed: ${e.config.url}`);
+        core.error(`   ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
+    }
+    else if (e instanceof Error) {
+        if (e.stack)
+            core.error(e.stack);
+    }
+}
+exports.logError = logError;
+function withMessage(message) {
+    return (e) => {
+        core.error(message);
+        logError(e);
+    };
+}
+exports.withMessage = withMessage;
+
+
+/***/ }),
+
 /***/ 81629:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -86757,13 +86814,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(42186));
 const curseforge_1 = __importDefault(__nccwpck_require__(24253));
+const error_1 = __nccwpck_require__(6388);
 const importer_1 = __nccwpck_require__(40687);
 const inputs_1 = __nccwpck_require__(7063);
 const technic_1 = __importDefault(__nccwpck_require__(94954));
 const web_1 = __nccwpck_require__(1759);
-function isAxiosError(e) {
-    return !!e.isAxiosError;
-}
 async function run() {
     const action = core.getInput("action", { required: true });
     switch (action) {
@@ -86791,15 +86846,7 @@ async function web() {
     await (0, web_1.updateWeb)();
 }
 run().catch((e) => {
-    var _a;
-    if (isAxiosError(e)) {
-        core.error(`API Request failed: ${e.config.url}`);
-        core.error(`   ${(_a = e.response) === null || _a === void 0 ? void 0 : _a.data}`);
-    }
-    else if (e instanceof Error) {
-        if (e.stack)
-            core.error(e.stack);
-    }
+    (0, error_1.logError)(e);
     core.setFailed(e.message);
 });
 

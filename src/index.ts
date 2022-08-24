@@ -1,14 +1,10 @@
 import * as core from "@actions/core";
-import { AxiosError } from "axios";
 import curseforgeRelease from "./curseforge";
+import { logError } from "./error";
 import { backtrackReleases } from "./importer";
 import { getRelease } from "./inputs";
 import technicRelease from "./technic";
 import { createRelease, updateWeb } from "./web";
-
-function isAxiosError(e: any): e is AxiosError {
-  return !!e.isAxiosError;
-}
 
 async function run() {
   const action = core.getInput("action", { required: true });
@@ -43,12 +39,6 @@ async function web() {
 }
 
 run().catch((e) => {
-  if (isAxiosError(e)) {
-    core.error(`API Request failed: ${e.config.url}`);
-    core.error(`   ${e.response?.data}`);
-  } else if (e instanceof Error) {
-    if (e.stack) core.error(e.stack);
-  }
-
+  logError(e);
   core.setFailed(e.message);
 });
