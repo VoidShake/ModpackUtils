@@ -46,7 +46,8 @@ run().catch((e) => {
   if (isAxiosError(e)) {
     core.error(`API Request failed: ${e.config.url}`);
     core.error(`   ${e.response?.data}`);
-    throw e;
+  } else {
+    core.error(e);
   }
 
   core.setFailed(e.message);
