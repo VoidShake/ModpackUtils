@@ -70,11 +70,14 @@ async function zipAndUpload(name: string) {
 
   const data = new FormData();
   data.append("file", createReadStream(file));
-  data.append("metadata", {
-    changelogType: "markdown",
-    changelog: release.body,
-    releaseType: release.prerelease ? "alpha" : "release",
-  });
+  data.append(
+    "metadata",
+    JSON.stringify({
+      changelogType: "markdown",
+      changelog: release.body,
+      releaseType: release.prerelease ? "alpha" : "release",
+    })
+  );
 
   const projectID = getInput("curseforge_project", { required: true });
   const api = getApi();

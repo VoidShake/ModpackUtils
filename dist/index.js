@@ -1,4 +1,4 @@
-/******/ (() => { // webpackBootstrap
+require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 87351:
@@ -86514,11 +86514,11 @@ async function zipAndUpload(name) {
     await archive.finalize();
     const data = new form_data_1.default();
     data.append("file", (0, fs_1.createReadStream)(file));
-    data.append("metadata", {
+    data.append("metadata", JSON.stringify({
         changelogType: "markdown",
         changelog: release.body,
         releaseType: release.prerelease ? "alpha" : "release",
-    });
+    }));
     const projectID = (0, core_1.getInput)("curseforge_project", { required: true });
     const api = getApi();
     await api.post(`projects/${projectID}/upload-file`, { data });
@@ -95805,3 +95805,4 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	
 /******/ })()
 ;
+//# sourceMappingURL=index.js.map

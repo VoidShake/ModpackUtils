@@ -2,7 +2,7 @@
   "name": "modpack-utils",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/index.ts",
+    "build": "ncc build src/index.ts -s",
     "watch": "nodemon",
     "format": "prettier --write src/**/*.ts",
     "lint": "eslint --fix src/**/*.ts"
