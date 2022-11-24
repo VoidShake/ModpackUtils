@@ -60337,7 +60337,7 @@ async function run() {
     if (actions.includes("web" /* Action.WEB */)) {
         const web = new modpack_cli_1.WebService({
             webToken: (0, core_1.getInput)('web_token', { required: true }),
-            apiUrl: (0, core_1.getInput)('api_url'),
+            apiUrl: (0, core_1.getInput)('api_url', { required: false }),
         });
         await web.updateWeb();
         if (release) {
