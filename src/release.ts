@@ -1,4 +1,4 @@
-import core from '@actions/core'
+import { getInput } from '@actions/core'
 import { context } from '@actions/github'
 import { ReleaseOptions } from '@voidshake/modpack-cli'
 
@@ -25,8 +25,8 @@ export function getReleaseData(): ReleaseOptions | undefined {
    const release = getRelease()
    if (!release) return undefined
 
-   const customVersion = core.getInput('release_version')
-   const customType = core.getInput('release_type')
+   const customVersion = getInput('release_version')
+   const customType = getInput('release_type')
 
    return {
       changelog: release.body,

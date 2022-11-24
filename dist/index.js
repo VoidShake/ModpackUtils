@@ -46518,65 +46518,14 @@ ZipStream.prototype.finalize = function() {
 
 /***/ }),
 
-/***/ 8891:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __importDefault(__nccwpck_require__(7954));
-const modpack_cli_1 = __nccwpck_require__(1683);
-const release_1 = __nccwpck_require__(9530);
-async function run() {
-    const actions = core_1.default
-        .getInput('actions', { required: true })
-        .split(',')
-        .map(it => it.trim().toLowerCase());
-    const release = (0, release_1.getReleaseData)();
-    if (actions.includes("web" /* Action.WEB */)) {
-        const web = new modpack_cli_1.WebService({
-            webToken: core_1.default.getInput('web_token', { required: true }),
-            apiUrl: core_1.default.getInput('api_url'),
-        });
-        await web.updateWeb();
-        if (release) {
-            await web.createRelease(release);
-        }
-    }
-    if (actions.includes("curseforge" /* Action.CURSEFORGE */)) {
-        if (!release)
-            throw new Error('curseforge action can only be triggered on release');
-        const curseforge = new modpack_cli_1.CurseforgeService({
-            curseforgeToken: core_1.default.getInput('curseforge_token', { required: true }),
-            curseforgeProject: Number.parseInt(core_1.default.getInput('curseforge_project', { required: true })),
-            paths: modpack_cli_1.defaultPaths,
-        });
-        await curseforge.createRelease(release);
-    }
-}
-run().catch(error => {
-    if (error instanceof Error) {
-        core_1.default.setFailed(error);
-    }
-});
-
-
-/***/ }),
-
 /***/ 9530:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getReleaseData = exports.getRelease = void 0;
-const core_1 = __importDefault(__nccwpck_require__(7954));
+const core_1 = __nccwpck_require__(7954);
 const github_1 = __nccwpck_require__(9939);
 function getRelease() {
     if (github_1.context.eventName === 'release') {
@@ -46589,8 +46538,8 @@ function getReleaseData() {
     const release = getRelease();
     if (!release)
         return undefined;
-    const customVersion = core_1.default.getInput('release_version');
-    const customType = core_1.default.getInput('release_type');
+    const customVersion = (0, core_1.getInput)('release_version');
+    const customType = (0, core_1.getInput)('release_type');
     return {
         changelog: release.body,
         version: customVersion !== null && customVersion !== void 0 ? customVersion : release.tag_name,
@@ -59708,13 +59657,51 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(8891);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+var exports = __webpack_exports__;
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __nccwpck_require__(7954);
+const modpack_cli_1 = __nccwpck_require__(1683);
+const release_1 = __nccwpck_require__(9530);
+async function run() {
+    const actions = (0, core_1.getInput)('actions', { required: true })
+        .split(',')
+        .map(it => it.trim().toLowerCase());
+    const release = (0, release_1.getReleaseData)();
+    if (actions.includes("web" /* Action.WEB */)) {
+        const web = new modpack_cli_1.WebService({
+            webToken: (0, core_1.getInput)('web_token', { required: true }),
+            apiUrl: (0, core_1.getInput)('api_url'),
+        });
+        await web.updateWeb();
+        if (release) {
+            await web.createRelease(release);
+        }
+    }
+    if (actions.includes("curseforge" /* Action.CURSEFORGE */)) {
+        if (!release)
+            throw new Error('curseforge action can only be triggered on release');
+        const curseforge = new modpack_cli_1.CurseforgeService({
+            curseforgeToken: (0, core_1.getInput)('curseforge_token', { required: true }),
+            curseforgeProject: Number.parseInt((0, core_1.getInput)('curseforge_project', { required: true })),
+            paths: modpack_cli_1.defaultPaths,
+        });
+        await curseforge.createRelease(release);
+    }
+}
+run().catch(error => {
+    if (error instanceof Error) {
+        (0, core_1.setFailed)(error);
+    }
+});
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map
