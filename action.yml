@@ -1,41 +1,31 @@
-name: "Modpack Utils"
-description: "Modpack Utils"
+name: 'Modpack Utils'
+description: 'Modpack Utils'
 inputs:
-  action:
-    description: "The action to perform"
-    required: true
-  api:
-    description: "The remote url of the web api"
-    required: false
-    default: "https://packs.somethingcatchy.net/api"
-  web_token:
-    description: "The web api token"
-    required: false
-  github_token:
-    description: "The github token"
-    required: false
-  dropbox_token:
-    description: "The dropbox access token"
-    required: false
-  dropbox_path:
-    description: "The dropbox path"
-    required: false
-    default: ""
-  pack_name:
-    description: "Pack name"
-    required: false
-  pack_version:
-    description: "Pack name"
-    required: false
-  curseforge_token:
-    description: "The curseforge access token"
-    required: false
-  curseforge_project:
-    description: "The curseforge project ID"
-    required: false
+   actions:
+      description: 'The actions to perform. can be any of [web, curseforge]'
+      required: true
+   api_url:
+      description: 'The remote url of the web api'
+      required: false
+      default: 'https://packs.somethingcatchy.net/api'
+   web_token:
+      description: 'The web api token'
+      required: false
+   release_version:
+      description: 'Custom release version'
+      required: false
+   release_type:
+      description: 'Custom release type. [alpha, beta, release]'
+      required: false
+   curseforge_token:
+      description: 'The curseforge access token'
+      required: false
+   curseforge_project:
+      description: 'The curseforge project ID'
+      required: false
 runs:
-  using: "node16"
-  main: dist/index.js
+   using: 'node16'
+   main: dist/index.js
 branding:
-  color: "purple"
-  icon: "arrow-up-circle"
+   color: 'purple'
+   icon: 'arrow-up-circle'

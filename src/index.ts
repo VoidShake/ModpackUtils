@@ -1,44 +1,43 @@
-import * as core from "@actions/core";
-import curseforgeRelease from "./curseforge";
-import { logError } from "./error";
-import { backtrackReleases } from "./importer";
-import { getRelease } from "./inputs";
-import technicRelease from "./technic";
-import { createRelease, updateWeb } from "./web";
+import core from '@actions/core'
+import { Action, CurseforgeService, defaultPaths, WebService } from '@voidshake/modpack-cli'
+import { getReleaseData } from './release'
 
 async function run() {
-  const action = core.getInput("action", { required: true });
+   const actions = core
+      .getInput('actions', { required: true })
+      .split(',')
+      .map(it => it.trim().toLowerCase())
 
-  switch (action) {
-    case "web":
-      return web();
-    case "technic":
-      return technicRelease();
-    case "curseforge":
-      return curseforgeRelease();
-    case "import":
-      return importer();
-  }
+   const release = getReleaseData()
 
-  throw new Error(`Invalid action '${action}'`);
+   if (actions.includes(Action.WEB)) {
+      const web = new WebService({
+         webToken: core.getInput('web_token', { required: true }),
+         apiUrl: core.getInput('api_url'),
+      })
+
+      await web.updateWeb()
+
+      if (release) {
+         await web.createRelease(release)
+      }
+   }
+
+   if (actions.includes(Action.CURSEFORGE)) {
+      if (!release) throw new Error('curseforge action can only be triggered on release')
+
+      const curseforge = new CurseforgeService({
+         curseforgeToken: core.getInput('curseforge_token', { required: true }),
+         curseforgeProject: Number.parseInt(core.getInput('curseforge_project', { required: true })),
+         paths: defaultPaths,
+      })
+
+      await curseforge.createRelease(release)
+   }
 }
 
-async function importer() {
-  await updateWeb();
-  await backtrackReleases();
-}
-
-async function web() {
-  const githubRelease = getRelease();
-  if (githubRelease) {
-    const release = await createRelease(githubRelease);
-    core.setOutput("release", release);
-  }
-
-  await updateWeb();
-}
-
-run().catch((e) => {
-  logError(e);
-  core.setFailed(e.message);
-});
+run().catch(error => {
+   if (error instanceof Error) {
+      core.setFailed(error)
+   }
+})
