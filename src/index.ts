@@ -9,6 +9,18 @@ async function run() {
 
    const release = getReleaseData()
 
+   if (actions.includes(Action.CURSEFORGE)) {
+      if (!release) throw new Error('curseforge action can only be triggered on release')
+
+      const curseforge = new CurseforgeService({
+         curseforgeToken: getInput('curseforge_token', { required: true }),
+         curseforgeProject: Number.parseInt(getInput('curseforge_project', { required: true })),
+         paths: defaultPaths,
+      })
+
+      await curseforge.createRelease(release)
+   }
+
    if (actions.includes(Action.WEB)) {
       const web = new WebService({
          webToken: getInput('web_token', { required: true }),
@@ -20,18 +32,6 @@ async function run() {
       if (release) {
          await web.createRelease(release)
       }
-   }
-
-   if (actions.includes(Action.CURSEFORGE)) {
-      if (!release) throw new Error('curseforge action can only be triggered on release')
-
-      const curseforge = new CurseforgeService({
-         curseforgeToken: getInput('curseforge_token', { required: true }),
-         curseforgeProject: Number.parseInt(getInput('curseforge_project', { required: true })),
-         paths: defaultPaths,
-      })
-
-      await curseforge.createRelease(release)
    }
 }
 
