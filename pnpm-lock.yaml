@@ -7,7 +7,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^4.33.0
   '@typescript-eslint/parser': ^4.33.0
   '@vercel/ncc': ^0.34.0
-  '@voidshake/modpack-cli': 0.0.2-alpha
+  '@voidshake/modpack-cli': 0.0.3-alpha
   eslint: ^7.32.0
   prettier: ^2.8.0
   typescript: ^4.9.3
@@ -17,7 +17,7 @@ dependencies:
   '@actions/github': 5.1.1
   '@types/node': 18.11.9
   '@vercel/ncc': 0.34.0
-  '@voidshake/modpack-cli': 0.0.2-alpha
+  '@voidshake/modpack-cli': 0.0.3-alpha
   typescript: 4.9.3
 
 devDependencies:
@@ -342,8 +342,8 @@ packages:
     hasBin: true
     dev: false
 
-  /@voidshake/modpack-cli/0.0.2-alpha:
-    resolution: {integrity: sha512-ccyS2TNNAJNlKyrII5ntLhNsdr6ctLs9ANoZrQKhVIs3L4kuHv0g/bEd64oXCvu8BfkeiUgq/ZJ9YXViDnA4ng==, tarball: download/@voidshake/modpack-cli/0.0.2-alpha/ade069e0dc5db4f7a17c65d636c7542a829f18e7}
+  /@voidshake/modpack-cli/0.0.3-alpha:
+    resolution: {integrity: sha512-CKgHJ+S5lLtfR1AmTGQSC2dmIYiqTfBzMUkrAp26ULF+jRSBwbgR53mYvoLShSy4WWV6e82RPw6uItqvpzjjng==, tarball: download/@voidshake/modpack-cli/0.0.3-alpha/94bcce4c0bedb480d02e4526dda8443553020e5b}
     hasBin: true
     dependencies:
       '@types/fs-extra': 9.0.13
