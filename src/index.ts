@@ -24,7 +24,7 @@ async function run() {
    if (actions.includes(Action.WEB)) {
       const web = new WebService({
          webToken: getInput('web_token', { required: true }),
-         apiUrl: getInput('api_url', { required: false }),
+         apiUrl: getInput('api_url', { required: false }) || undefined,
       })
 
       await web.updateWeb()
