@@ -72483,16 +72483,15 @@ function getReleaseData() {
     const release = getRelease();
     if (!release)
         return undefined;
-    console.log('Github Release', release);
     const customVersion = (0, core_1.getInput)('release_version');
     const customType = (0, core_1.getInput)('release_type');
     return {
         changelog: release.body,
-        version: customVersion !== null && customVersion !== void 0 ? customVersion : release.tag_name,
+        version: customVersion || release.tag_name,
         author: (_a = release.author) === null || _a === void 0 ? void 0 : _a.login,
         date: release.published_at,
         name: release.name,
-        releaseType: customType !== null && customType !== void 0 ? customType : (release.prerelease ? 'alpha' : 'release'),
+        releaseType: customType || (release.prerelease ? 'alpha' : 'release'),
         url: release.html_url,
     };
 }

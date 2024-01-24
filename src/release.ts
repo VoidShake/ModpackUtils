@@ -9,7 +9,7 @@ interface GithubRelease {
    name: string
    prerelease: boolean
    published_at: string
-   tag_name : string
+   tag_name: string
    author?: {
       login: string
    }
@@ -25,18 +25,17 @@ export function getReleaseData(): ReleaseOptions | undefined {
    const release = getRelease()
    if (!release) return undefined
 
-   console.log('Github Release', release)
 
    const customVersion = getInput('release_version')
    const customType = getInput('release_type')
 
    return {
       changelog: release.body,
-      version: customVersion ?? release.tag_name,
+      version: customVersion || release.tag_name,
       author: release.author?.login,
       date: release.published_at,
       name: release.name,
-      releaseType: customType ?? (release.prerelease ? 'alpha' : 'release'),
+      releaseType: customType || (release.prerelease ? 'alpha' : 'release'),
       url: release.html_url,
    }
 }
