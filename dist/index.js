@@ -72483,6 +72483,7 @@ function getReleaseData() {
     const release = getRelease();
     if (!release)
         return undefined;
+    console.log('Github Release', release);
     const customVersion = (0, core_1.getInput)('release_version');
     const customType = (0, core_1.getInput)('release_type');
     return {
