@@ -1,5 +1,11 @@
-import { getInput, setFailed } from '@actions/core'
-import { Action, CurseforgeService, defaultPaths, WebOptions, WebService } from '@voidshake/modpack-cli'
+import { getInput, info, setFailed } from '@actions/core'
+import {
+   Action,
+   CurseforgeService,
+   WebOptions,
+   WebService,
+   defaultPaths
+} from '@voidshake/modpack-cli'
 import { getReleaseData } from './release'
 
 async function run() {
@@ -8,6 +14,10 @@ async function run() {
       .map(it => it.trim().toLowerCase())
 
    const release = getReleaseData()
+
+   if (release) {
+      info(`found release ${release.version}`)
+   }
 
    const webOptions = (required: boolean): WebOptions => ({
       webToken: getInput('web_token', { required }),
