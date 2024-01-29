@@ -1,15 +1,12 @@
 name: 'Modpack Utils'
 description: 'Modpack Utils'
 inputs:
-   actions:
-      description: 'The actions to perform. can be any of [web, curseforge]'
-      required: true
    api_url:
       description: 'The remote url of the web api'
       required: false
    web_token:
       description: 'The web api token'
-      required: false
+      required: true
    release_version:
       description: 'Custom release version'
       required: false
@@ -19,7 +16,7 @@ inputs:
    curseforge_token:
       description: 'The curseforge access token'
       required: false
-   curseforge_project:
+   modrinth_token:
       description: 'The curseforge project ID'
       required: false
 runs:
