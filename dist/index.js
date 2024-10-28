@@ -25544,7 +25544,7 @@ exports.visitAsync = visitAsync;
 
 /***/ }),
 
-/***/ 9877:
+/***/ 2121:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -30225,7 +30225,7 @@ axios.default = axios;
 // this module should only have a default export
 /* harmony default export */ const lib_axios = (axios);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/curseforge.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.1/node_modules/@voidshake/modpack-cli/dist/curseforge.js
 
 const libIds = [421, 425, 423, 435];
 function validateCurseforgeOptions(options) {
@@ -30341,7 +30341,7 @@ var external_fs_ = __nccwpck_require__(7147);
 var external_path_ = __nccwpck_require__(1017);
 // EXTERNAL MODULE: ./node_modules/.pnpm/toml@3.0.0/node_modules/toml/index.js
 var toml = __nccwpck_require__(3437);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/modrinth.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.1/node_modules/@voidshake/modpack-cli/dist/modrinth.js
 
 function validateModrinthOptions(options) {
     if (!options.modrinthToken)
@@ -30360,13 +30360,13 @@ class ModrinthService {
         });
     }
     resolveMod(data) {
-        var _a;
+        var _a, _b;
         return {
             id: data.id,
             name: data.title,
             slug: data.slug,
             categories: (_a = data.categories) !== null && _a !== void 0 ? _a : [],
-            icon: data.icon_url,
+            icon: (_b = data.icon_url) !== null && _b !== void 0 ? _b : undefined,
             popularityScore: data.downloads,
             summary: data.description,
             websiteUrl: `https://modrinth.com/mod/${data.slug}`,
@@ -30385,7 +30385,7 @@ class ModrinthService {
     }
 }
 //# sourceMappingURL=modrinth.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/packwiz.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.1/node_modules/@voidshake/modpack-cli/dist/packwiz.js
 
 
 
@@ -30533,7 +30533,7 @@ class PackwizService {
     }
 }
 //# sourceMappingURL=packwiz.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/pack.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.1/node_modules/@voidshake/modpack-cli/dist/pack.js
 
 
 
@@ -31211,7 +31211,7 @@ const chalkStderr = createChalk({level: stderrColor ? stderrColor.level : 0});
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/yaml@2.1.3/node_modules/yaml/dist/index.js
 var dist = __nccwpck_require__(4106);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/web.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.1/node_modules/@voidshake/modpack-cli/dist/web.js
 
 
 
@@ -31336,7 +31336,7 @@ function readPackData(dir) {
     return dist.parse((0,external_fs_.readFileSync)(file).toString());
 }
 //# sourceMappingURL=web.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.1/node_modules/@voidshake/modpack-cli/dist/index.js
 
 
 
@@ -31434,7 +31434,7 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(7954);
-const modpack_cli_1 = __nccwpck_require__(9877);
+const modpack_cli_1 = __nccwpck_require__(2121);
 const release_1 = __nccwpck_require__(9530);
 async function run() {
     const release = (0, release_1.getReleaseData)();

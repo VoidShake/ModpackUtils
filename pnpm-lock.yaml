@@ -21,8 +21,8 @@ importers:
         specifier: ^0.34.0
         version: 0.34.0
       '@voidshake/modpack-cli':
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.1.1
+        version: 1.1.1
       typescript:
         specifier: ^4.9.3
         version: 4.9.3
@@ -183,8 +183,8 @@ packages:
     resolution: {integrity: sha512-G9h5ZLBJ/V57Ou9vz5hI8pda/YQX5HQszCs3AmIus3XzsmRn/0Ptic5otD3xVST8QLKk7AMk7AqpsyQGN7MZ9A==}
     hasBin: true
 
-  '@voidshake/modpack-cli@1.1.0':
-    resolution: {integrity: sha512-2sByhu1fb5NfDZjI1UdHiJsULIWt4GX0hO+yEzuPTJ4+XgD9Fko0/zUPyh4MlwDFNlG/HOEWCwhWg8OE37A+jg==, tarball: https://npm.pkg.github.com/download/@voidshake/modpack-cli/1.1.0/f9d6814301350b442b9541a55a9c5f2f687eb8b6}
+  '@voidshake/modpack-cli@1.1.1':
+    resolution: {integrity: sha512-1SFNchnFntiXFuvjO4J3hvxYNLZAESjd62Fm+aiG77iSa4nFJjVafLE+Ulx2CYR//RStvo/doXwdkCxDj/pfow==, tarball: https://npm.pkg.github.com/download/@voidshake/modpack-cli/1.1.1/6d55b9a70d062cbd73a4e7884f2474191d109c10}
     hasBin: true
 
   acorn-jsx@5.3.2:
@@ -514,6 +514,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@13.18.0:
     resolution: {integrity: sha512-/mR4KI8Ps2spmoc0Ulu9L7agOF0du1CZNQ3dke8yItYlyKNmGrkONemBbd6V8UTc1Wgcqn21t3WYB7dbRmh6/A==}
@@ -555,6 +556,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -764,6 +766,7 @@ packages:
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   run-parallel@1.2.0:
@@ -1145,7 +1148,7 @@ snapshots:
 
   '@vercel/ncc@0.34.0': {}
 
-  '@voidshake/modpack-cli@1.1.0':
+  '@voidshake/modpack-cli@1.1.1':
     dependencies:
       '@types/fs-extra': 9.0.13
       '@types/minimatch': 3.0.5
