@@ -1,5 +1,6 @@
 name: 'Modpack Utils'
 description: 'Modpack Utils'
+
 inputs:
    api_url:
       description: 'The remote url of the web api'
@@ -19,9 +20,11 @@ inputs:
    modrinth_token:
       description: 'The curseforge project ID'
       required: false
+
 runs:
-   using: 'node16'
+   using: node20
    main: dist/index.js
+
 branding:
    color: 'purple'
    icon: 'arrow-up-circle'
