@@ -25544,7 +25544,7 @@ exports.visitAsync = visitAsync;
 
 /***/ }),
 
-/***/ 9625:
+/***/ 9877:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
@@ -30225,12 +30225,24 @@ axios.default = axios;
 // this module should only have a default export
 /* harmony default export */ const lib_axios = (axios);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.0.1/node_modules/@voidshake/modpack-cli/dist/curseforge.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/curseforge.js
 
 const libIds = [421, 425, 423, 435];
 function validateCurseforgeOptions(options) {
     if (!options.curseforgeToken)
         throw new Error('CurseForge Token missing');
+}
+const categoryReplacements = {
+    'api-and-library': ['library'],
+    'world-gen': ['worldgen'],
+    'ores-and-resources': ['worldgen'],
+    dimensions: ['$', 'worldgen'],
+    'utility-&-qol': ['utility'],
+    'server-utility': ['$', 'utility'],
+    'armor-tools-and-weapons': ['equipment'],
+};
+function uniq(array) {
+    return array.filter((v1, i1) => !array.some((v2, i2) => v1 === v2 && i2 < i1));
 }
 class CurseforgeService {
     constructor(options) {
@@ -30243,6 +30255,17 @@ class CurseforgeService {
             },
         });
     }
+    resolveCategory(from) {
+        const snakeCase = from.replace(/[\s,]+/g, '-').toLowerCase();
+        if (snakeCase in categoryReplacements) {
+            return categoryReplacements[snakeCase].map(it => {
+                if (it === '$')
+                    return snakeCase;
+                return it;
+            });
+        }
+        return [snakeCase];
+    }
     resolveMod(data) {
         var _a;
         return {
@@ -30250,7 +30273,7 @@ class CurseforgeService {
             name: data.name,
             slug: data.slug,
             ...data.links,
-            categories: data.categories.map(it => it.name.replace(/[\s,]+/g, '-').toLowerCase()),
+            categories: uniq(data.categories.flatMap(it => this.resolveCategory(it.name))),
             library: [421, 425].includes(data.primaryCategoryId) && data.categories.every(c => libIds.includes(c.id)),
             popularityScore: data.gamePopularityRank,
             icon: (_a = data.logo) === null || _a === void 0 ? void 0 : _a.thumbnailUrl,
@@ -30318,7 +30341,7 @@ var external_fs_ = __nccwpck_require__(7147);
 var external_path_ = __nccwpck_require__(1017);
 // EXTERNAL MODULE: ./node_modules/.pnpm/toml@3.0.0/node_modules/toml/index.js
 var toml = __nccwpck_require__(3437);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.0.1/node_modules/@voidshake/modpack-cli/dist/modrinth.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/modrinth.js
 
 function validateModrinthOptions(options) {
     if (!options.modrinthToken)
@@ -30362,7 +30385,7 @@ class ModrinthService {
     }
 }
 //# sourceMappingURL=modrinth.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.0.1/node_modules/@voidshake/modpack-cli/dist/packwiz.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/packwiz.js
 
 
 
@@ -30431,7 +30454,7 @@ class PackwizService {
         };
     }
     resolveMod(file) {
-        var _a, _b;
+        var _a, _b, _c;
         if ((0,external_path_.extname)(file) === '.toml') {
             const definition = parseTOML(file);
             if ((_a = definition.update) === null || _a === void 0 ? void 0 : _a.curseforge) {
@@ -30444,6 +30467,12 @@ class PackwizService {
                 return {
                     type: 'modrinth',
                     ...definition.update.modrinth,
+                };
+            }
+            if ((_c = definition.update) === null || _c === void 0 ? void 0 : _c.github) {
+                return {
+                    type: 'github',
+                    ...definition.update.github,
                 };
             }
             throw new Error(`File ${file} missing update information`);
@@ -30489,11 +30518,22 @@ class PackwizService {
                 });
             }));
         }
+        const githubMods = resolvedMods.filter(it => it.type === 'github');
+        if (githubMods.length > 0) {
+            mods.push(...githubMods.map(a => ({
+                id: a.slug,
+                name: a.slug.split('/')[1],
+                version: a.tag,
+                categories: [],
+                slug: a.slug,
+                websiteUrl: `https://github.com/${a.slug}`,
+            })));
+        }
         return { version, mods };
     }
 }
 //# sourceMappingURL=packwiz.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.0.1/node_modules/@voidshake/modpack-cli/dist/pack.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/pack.js
 
 
 
@@ -31171,7 +31211,7 @@ const chalkStderr = createChalk({level: stderrColor ? stderrColor.level : 0});
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/yaml@2.1.3/node_modules/yaml/dist/index.js
 var dist = __nccwpck_require__(4106);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.0.1/node_modules/@voidshake/modpack-cli/dist/web.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/web.js
 
 
 
@@ -31296,7 +31336,7 @@ function readPackData(dir) {
     return dist.parse((0,external_fs_.readFileSync)(file).toString());
 }
 //# sourceMappingURL=web.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.0.1/node_modules/@voidshake/modpack-cli/dist/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@voidshake+modpack-cli@1.1.0/node_modules/@voidshake/modpack-cli/dist/index.js
 
 
 
@@ -31394,7 +31434,7 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(7954);
-const modpack_cli_1 = __nccwpck_require__(9625);
+const modpack_cli_1 = __nccwpck_require__(9877);
 const release_1 = __nccwpck_require__(9530);
 async function run() {
     const release = (0, release_1.getReleaseData)();
